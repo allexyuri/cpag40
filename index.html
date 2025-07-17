@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Taxas - Plano CPAG 40</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Blue Accent -->
+    <!-- Application Structure Plan: Dashboard layout with a main chart section and two side-by-side transaction calculators. Calculator 1 allows selection of all rate profiles, while Calculator 2 is specifically designed for custom profiles, facilitating direct comparison. A collapsible custom rate profile management section is also included, now with granular input fields for each installment rate (1x to 18x) and a new field for max installments for chart comparison. The structure prioritizes direct comparison of two chosen rate profiles via the calculators and visual highlighting of higher CET in the chart, adjusting dynamically the chart x-axis based on max installments. -->
+    <!-- Visualization & Content Choices: Report Info: Installment Rates -> Goal: Show Trend & Compare Custom -> Viz: Line Chart (multiple datasets) -> Interaction: Updates on brand/custom profile selection, highlights lower CET in green for "maior economia" and higher CET in red, dynamically adjusts x-axis based on custom max installments -> Justification: Best for visualizing trends and direct comparison over installments, with clear visual cue for economy and flexible x-axis -> Library: Chart.js/Canvas. Report Info: Fee Calculation -> Goal: Practical Application & Side-by-Side Comparison -> Viz: Two Interactive Forms -> Interaction: Independent real-time calculation with based on selected profile (Calc 2 focuses on custom profiles), clear buttons -> Justification: Allows direct comparison of different rate scenarios and easy resets -> Library: JS/HTML. Report Info: Custom Rate Definition -> Goal: User Input & Comparison -> Viz: Collapsible Form Inputs (now 1x-18x explicit + max installments) -> Interaction: Add new profile, select for comparison, toggle visibility, visual feedback on add -> Justification: Allows flexible, precise user-defined scenarios while simplifying initial UI and providing feedback -> Library: JS/HTML. CONFIRMING NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        .nav-button[aria-selected="true"] {
+            background-color: #2563eb;
+            color: white;
+        }
+        .nav-button[aria-selected="false"] {
+            background-color: #ffffff;
+            color: #374151;
+        }
+        /* Table specific styles for better visual separation */
+        table {
+            border-collapse: collapse; /* Ensures borders are single lines */
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #e5e7eb; /* Light gray border */
+            padding: 0.1rem; /* Further reduced padding for more compact table */
+            text-align: left;
+            overflow-wrap: break-word; /* Allows long words to break and wrap, preferring whole words */
+            white-space: normal; /* Ensures text wraps normally */
+        }
+        thead th {
+            background-color: #f9fafb; /* Lighter background for header */
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #f3f4f6; /* Alternate row background for readability */
+        }
+        /* Page content visibility */
+        .page-content.hidden {
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            background-color: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-buttons button:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-800">
+
+    <!-- Container principal com largura máxima e centralização para melhor visualização em telas grandes, e padding responsivo -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-screen-xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Painel de Taxas</h1>
+            <p class="text-lg text-slate-600 mt-1">Plano CPAG 40 - Athos Pay</p>
+        </header>
+
+        <!-- Navegação principal por páginas -->
+        <nav class="mb-8">
+            <div id="main-nav-container" class="flex flex-wrap justify-center gap-2">
+                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="custom-profile-page" aria-selected="true">Perfil Personalizado</button>
+                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="comparison-details-page" aria-selected="false">Detalhes da Comparação</button>
+                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="calculators-page" aria-selected="false">Calculadoras</button>
+                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="chart-page" aria-selected="false">Gráfico</button>
+            </div>
+        </nav>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Página 4: Perfil Personalizado (agora a primeira) -->
+            <div id="custom-profile-page" class="page-content lg:col-span-2">
+                <section class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-4">Taxas da Operadora Atual</h2>
+                    <div id="custom-profile-content">
+                        <p class="text-sm text-slate-500 mb-6">Defina um novo perfil de taxas para comparação. Insira as taxas da bandeira para cada parcela (1x a 18x).</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label for="custom-profile-name" class="block text-sm font-medium text-gray-700">Nome do Perfil</label>
+                                <input type="text" id="custom-profile-name" placeholder="Meu Perfil de Teste" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="custom-service-rate" class="block text-sm font-medium text-gray-700">Taxa de Serviço/Alíquota (%)</label>
+                                <input type="number" id="custom-service-rate" placeholder="2.00" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="custom-rate-pix" class="block text-sm font-medium text-gray-700">Taxa da Bandeira (PIX) %</label>
+                                <input type="number" id="custom-rate-pix" placeholder="0.99" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="custom-rate-debit" class="block text-sm font-medium text-gray-700">Taxa da Bandeira (Débito) %</label>
+                                <input type="number" id="custom-rate-debit" placeholder="1.00" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="custom-max-parcelas" class="block text-sm font-medium text-gray-700">Máximo de Parcelas para Comparativo</label>
+                                <input type="number" id="custom-max-parcelas" placeholder="Ex: 12 (até 18)" min="1" max="18" value="18" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <!-- Container para as entradas de taxa de parcelamento -->
+                            <div id="parcelado-inputs-container" class="lg:col-span-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <div class="col-span-full text-sm font-semibold text-gray-700 mt-2 mb-1">Taxas da Bandeira (Parcelado por X) %</div>
+                                <!-- Os campos de input serão gerados aqui via JavaScript -->
+                            </div>
+                        </div>
+                        <button id="add-custom-profile" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-700 transition-colors font-medium">Adicionar Perfil Personalizado</button>
+                        <div id="add-profile-feedback" class="mt-2 text-sm text-center text-green-600 hidden">Perfil adicionado com sucesso!</div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-lg font-bold mb-4">Perfis Personalizados Salvos</h3>
+                            <div id="saved-custom-profiles-list" class="space-y-2">
+                                <!-- Perfis salvos serão listados aqui -->
+                                <p class="text-sm text-gray-500" id="no-custom-profiles-message">Nenhum perfil personalizado salvo ainda.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Página 3: Detalhes da Comparação (agora a segunda) -->
+            <div id="comparison-details-page" class="page-content hidden lg:col-span-2">
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-xl font-bold mb-4">Detalhes da Comparação por Forma de Pagamento</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" rowspan="2" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Forma de Pagamento</th>
+                                    <th scope="col" rowspan="2" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Bruto</th>
+                                    <th scope="col" colspan="4" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-blue-200" id="table-header-profile1-group"></th>
+                                    <th scope="col" colspan="4" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-green-200" id="table-header-profile2-group"></th>
+                                    <th scope="col" colspan="2" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-yellow-200">Economia Athos Pay</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-blue-100">Bandeira (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-blue-100">Serviço (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-blue-100">CET (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-blue-100">Líquido (R$)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">Bandeira (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">Serviço<br>Alíquota (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">CET (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">Líquido (R$)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-yellow-100">Economia (R$)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-yellow-100">Economia (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparison-table-body">
+                                <!-- Table rows will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Página 2: Calculadoras (agora a terceira) -->
+            <div id="calculators-page" class="page-content hidden lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Calculadora 1 -->
+                <section class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-4">Athos Pay <span id="calc-title-1" class="text-base text-slate-600 font-normal"></span></h2>
+                    <p class="text-sm text-slate-500 mb-6">Insira o valor da venda para ver as taxas aplicadas e o valor líquido a receber.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="profile-select-1" class="block text-sm font-medium text-gray-700">Perfil de Taxas</label>
+                            <select id="profile-select-1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                        </div>
+                        <div>
+                            <label for="sale-amount-1" class="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
+                            <input type="number" id="sale-amount-1" placeholder="100.00" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="payment-method-1" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+                            <select id="payment-method-1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                        </div>
+                    </div>
+                    <div id="results-container-1" class="mt-6 pt-6 border-t border-slate-200 space-y-3 hidden">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Taxa de Serviço:</span>
+                            <span id="result-service-fee-1" class="font-medium text-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Taxa da Bandeira:</span>
+                            <span id="result-rate-1" class="font-medium text-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg">
+                            <span class="font-semibold text-red-600">Custo Total (CET):</span>
+                            <span id="result-cet-1" class="font-bold text-red-600"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg mt-4 bg-green-100 p-3 rounded-lg">
+                            <span class="font-semibold text-green-800">Valor Líquido a Receber:</span>
+                            <span id="result-net-1" class="font-bold text-green-800"></span>
+                        </div>
+                    </div>
+                    <button id="clear-calc-1" class="mt-6 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md shadow-sm hover:bg-gray-300 transition-colors font-medium">Limpar</button>
+                </section>
+
+                <!-- Calculadora 2 -->
+                <section class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-4" id="calc-title-2"></h2>
+                    <p class="text-sm text-slate-500 mb-6">Compare com um perfil de taxas personalizado.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="profile-select-2" class="block text-sm font-medium text-gray-700">Perfil Personalizado</label>
+                            <select id="profile-select-2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                        </div>
+                        <div>
+                            <label for="sale-amount-2" class="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
+                            <input type="number" id="sale-amount-2" placeholder="100.00" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="payment-method-2" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+                            <select id="payment-method-2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                        </div>
+                    </div>
+                    <div id="results-container-2" class="mt-6 pt-6 border-t border-slate-200 space-y-3 hidden">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Taxa de Serviço/Alíquota:</span> <!-- Alterado aqui -->
+                            <span id="result-service-fee-2" class="font-medium text-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Taxa da Bandeira:</span>
+                            <span id="result-rate-2" class="font-medium text-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg">
+                            <span class="font-semibold text-red-600">Custo Total (CET):</span>
+                            <span id="result-cet-2" class="font-bold text-red-600"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg mt-4 bg-green-100 p-3 rounded-lg">
+                            <span class="font-semibold text-green-800">Valor Líquido a Receber:</span>
+                            <span id="result-net-2" class="font-bold text-green-800"></span>
+                        </div>
+                    </div>
+                    <button id="clear-calc-2" class="mt-6 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md shadow-sm hover:bg-gray-300 transition-colors font-medium">Limpar</button>
+                </section>
+            </div>
+
+            <!-- Página 1: Gráfico (agora a quarta) -->
+            <div id="chart-page" class="page-content hidden lg:col-span-2">
+                <section class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-1">Comparativo de Economia (CET) por Forma de Pagamento <span id="chart-title-profiles" class="text-base text-slate-600 font-normal"></span></h2>
+                    <p class="text-sm text-slate-500 mb-4">A linha verde indica o perfil com menor CET (maior economia). As linhas do gráfico terminam na parcela máxima definida para cada perfil.</p>
+                    <div class="chart-container">
+                        <canvas id="rateChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+        
+        <footer class="text-center mt-12 text-sm text-slate-500">
+            <p>Valores baseados no documento de taxas do plano CPAG 40. Data de emissão do documento: 16/07/2025.</p>
+        </footer>
+    </div>
+
+    <!-- Custom Modal Structure -->
+    <div id="custom-modal" class="modal hidden">
+        <div class="modal-content">
+            <p id="modal-message" class="text-gray-800 text-lg mb-4"></p>
+            <div class="modal-buttons">
+                <button id="modal-close-button">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Define as taxas pré-definidas para diferentes bandeiras
+            const allRates = {
+                "PIX/Visa": [
+                    { "display": "PIX", "forma": "PIX", "taxa": 0.99, "servico": 2, "cet": 2.99 },
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        const cetMap = { 1: 6.27, 2: 8.02, 3: 9.47, 4: 10.91, 5: 12.36, 6: 13.80, 7: 15.61, 8: 17.05, 9: 18.49, 10: 19.92, 11: 21.36, 12: 22.80, 13: 25.24, 14: 26.66, 15: 28.08, 16: 29.50, 17: 30.91, 18: 32.33 };
+                        const cet = cetMap[parcelas];
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                    })
+                ],
+                "Mastercard": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.39, "servico": 2, "cet": 3.39 },
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        const cetMap = { 1: 6.49, 2: 8.89, 3: 10.29, 4: 11.67, 5: 13.07, 6: 14.44, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                        const cet = cetMap[parcelas];
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                    })
+                ],
+                "Elo": Array.from({ length: 18 }, (_, i) => {
+                    const parcelas = i + 1;
+                    const cetMap = { 1: 6.49, 2: 8.68, 3: 10.12, 4: 11.67, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                    const cet = cetMap[parcelas];
+                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                }),
+                "Hipercard": Array.from({ length: 18 }, (_, i) => {
+                    const parcelas = i + 1;
+                    const cetMap = { 1: 6.72, 2: 8.90, 3: 10.29, 4: 11.68, 5: 13.07, 6: 14.44, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                    const cet = cetMap[parcelas];
+                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                }),
+                "Amex": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 6.00, "servico": 2, "cet": 8.00 },
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        const cetMap = { 1: 8.17, 2: 9.04, 3: 10.12, 4: 11.55, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                        const cet = cetMap[parcelas];
+                        const servico = 3;
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
+                    })
+                ],
+                "Cabal": [
+                    ...Array.from({ length: 18 }, (_, i) => {
+                         const parcelas = i + 1;
+                        if (parcelas < 3) return null;
+                        const cetMap = { 3: 10.12, 4: 11.55, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                        const cet = cetMap[parcelas];
+                        const servico = 3;
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
+                    }).filter(Boolean)
+                ]
+            };
+
+            let customProfiles = {}; // Objeto para armazenar perfis de taxas personalizados
+            let currentBrand = "PIX/Visa"; // Marca principal selecionada pelos botões de navegação
+            let chartInstance = null; // Instância do Chart.js
+            let currentPage = 'custom-profile-page'; // Página inicial padrão
+
+            // Elementos da Calculadora 1
+            const saleAmountInput1 = document.getElementById('sale-amount-1');
+            const paymentMethodSelect1 = document.getElementById('payment-method-1');
+            const profileSelect1 = document.getElementById('profile-select-1');
+            const resultsContainer1 = document.getElementById('results-container-1');
+            const resultServiceFee1 = document.getElementById('result-service-fee-1');
+            const resultRate1 = document.getElementById('result-rate-1');
+            const resultCet1 = document.getElementById('result-cet-1');
+            const resultNet1 = document.getElementById('result-net-1');
+            const calcTitle1 = document.getElementById('calc-title-1');
+            const clearCalc1Button = document.getElementById('clear-calc-1');
+
+            // Elementos da Calculadora 2
+            const saleAmountInput2 = document.getElementById('sale-amount-2');
+            const paymentMethodSelect2 = document.getElementById('payment-method-2');
+            const profileSelect2 = document.getElementById('profile-select-2');
+            const resultsContainer2 = document.getElementById('results-container-2');
+            const resultServiceFee2 = document.getElementById('result-service-fee-2');
+            const resultRate2 = document.getElementById('result-rate-2');
+            const resultCet2 = document.getElementById('result-cet-2');
+            const resultNet2 = document.getElementById('result-net-2');
+            const calcTitle2 = document.getElementById('calc-title-2');
+            const clearCalc2Button = document.getElementById('clear-calc-2');
+
+            // Outros elementos da UI
+            const mainNavContainer = document.getElementById('main-nav-container');
+            const pageContents = document.querySelectorAll('.page-content');
+            const chartTitleProfiles = document.getElementById('chart-title-profiles');
+            const addCustomProfileButton = document.getElementById('add-custom-profile');
+            const customMaxParcelasInput = document.getElementById('custom-max-parcelas'); // Adicionado
+            const addProfileFeedback = document.getElementById('add-profile-feedback');
+            const comparisonTableBody = document.getElementById('comparison-table-body');
+            const tableHeaderProfile1Group = document.getElementById('table-header-profile1-group');
+            const tableHeaderProfile2Group = document.getElementById('table-header-profile2-group');
+            const savedCustomProfilesList = document.getElementById('saved-custom-profiles-list');
+            const noCustomProfilesMessage = document.getElementById('no-custom-profiles-message');
+            const parceladoInputsContainer = document.getElementById('parcelado-inputs-container');
+
+            // Elementos do Modal Personalizado
+            const customModal = document.getElementById('custom-modal');
+            const modalMessage = document.getElementById('modal-message');
+            const modalCloseButton = document.getElementById('modal-close-button');
+
+            /**
+             * Exibe o modal personalizado com uma mensagem específica.
+             * @param {string} message - A mensagem a ser exibida no modal.
+             */
+            function showCustomModal(message) {
+                modalMessage.textContent = message;
+                customModal.classList.remove('hidden');
+            }
+
+            /**
+             * Oculta o modal personalizado.
+             */
+            function hideCustomModal() {
+                customModal.classList.add('hidden');
+            }
+
+            // Listener para fechar o modal
+            modalCloseButton.addEventListener('click', hideCustomModal);
+
+            /**
+             * Exibe a página selecionada e oculta as outras.
+             * Atualiza o estado visual dos botões de navegação.
+             * @param {string} pageId - O ID da página a ser exibida.
+             */
+            function showPage(pageId) {
+                pageContents.forEach(page => {
+                    page.classList.add('hidden');
+                });
+                document.getElementById(pageId).classList.remove('hidden');
+                currentPage = pageId;
+                updateActiveButton();
+
+                // Atualiza o conteúdo específico da página ao exibi-la
+                if (pageId === 'chart-page') {
+                    updateChart();
+                } else if (pageId === 'calculators-page') {
+                    updateCalculatorUI(1);
+                    updateCalculatorUI(2);
+                } else if (pageId === 'comparison-details-page') {
+                    updateComparisonTable();
+                } else if (pageId === 'custom-profile-page') {
+                    displaySavedCustomProfiles();
+                    updateParceladoInputsVisibility(); // Garante que a visibilidade esteja correta ao exibir a página
+                }
+            }
+
+            /**
+             * Atualiza o estado visual do botão de navegação ativo.
+             */
+            function updateActiveButton() {
+                document.querySelectorAll('.page-nav-button').forEach(btn => {
+                    btn.setAttribute('aria-selected', btn.dataset.page === currentPage);
+                });
+            }
+
+            /**
+             * Função principal para inicializar e atualizar a aplicação.
+             */
+            function updateApp() {
+                populateAllProfileSelect(profileSelect1, profileSelect1.value || currentBrand);
+                populateCustomProfileSelect(profileSelect2);
+                showPage(currentPage);
+            }
+
+            /**
+             * Formata um valor numérico para o formato de moeda BRL.
+             * @param {number} value - O valor a ser formatado.
+             * @returns {string} O valor formatado como moeda.
+             */
+            function formatCurrency(value) {
+                return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+
+            /**
+             * Retorna os dados de um perfil de taxas (taxas e máximo de parcelas).
+             * Pode ser um perfil pré-definido ou um perfil personalizado.
+             * @param {string} profileName - O nome do perfil.
+             * @returns {{data: Array, max_parcelas: number}} Os dados do perfil e o número máximo de parcelas.
+             */
+            function getProfileData(profileName) {
+                let data = [];
+                let maxParcelas = 18; // Padrão para perfis incorporados
+
+                if (allRates[profileName]) {
+                    data = allRates[profileName];
+                } else if (customProfiles[profileName]) {
+                    const profile = customProfiles[profileName];
+                    maxParcelas = profile.max_parcelas;
+                    const serviceRate = profile.service_rate;
+                    const taxaPix = profile.taxa_pix; // Nova taxa PIX
+                    const taxaDebit = profile.taxa_debit;
+                    const parceladoRates = profile.parceladoRates;
+
+                    // Adiciona a taxa de PIX
+                    data.push({
+                        "display": "PIX",
+                        "forma": "PIX",
+                        "taxa": taxaPix,
+                        "servico": serviceRate,
+                        "cet": parseFloat((taxaPix + serviceRate).toFixed(2))
+                    });
+
+                    // Adiciona a taxa de débito
+                    data.push({
+                        "display": "Débito",
+                        "forma": "Débito",
+                        "taxa": taxaDebit,
+                        "servico": serviceRate,
+                        "cet": parseFloat((taxaDebit + serviceRate).toFixed(2))
+                    });
+
+                    // Adiciona as taxas de parcelamento (até 18x)
+                    for (let i = 1; i <= 18; i++) {
+                        const taxa = parceladoRates[i - 1];
+                        const servico = serviceRate;
+                        const cet = parseFloat((taxa + servico).toFixed(2));
+                        data.push({
+                            "display": `Parcelado ${i}x`,
+                            "forma": `Parcelado ${i}x`,
+                            "taxa": taxa,
+                            "servico": servico,
+                            "cet": cet
+                        });
+                    }
+                }
+                return { data: data, max_parcelas: maxParcelas };
+            }
+
+            /**
+             * Atualiza o gráfico de comparação de economia.
+             * Exibe as taxas CET de dois perfis selecionados ao longo das parcelas.
+             */
+            function updateChart() {
+                const profile1Name = profileSelect1.value;
+                const profile2Name = profileSelect2.value;
+
+                const profile1Result = getProfileData(profile1Name);
+                const profile2Result = getProfileData(profile2Name);
+
+                const profile1Data = profile1Result.data;
+                const profile1MaxParcelas = profile1Result.max_parcelas;
+
+                const profile2Data = profile2Result.data;
+                const profile2MaxParcelas = profile2Result.max_parcelas;
+
+                // Determina o número máximo de parcelas a exibir no eixo X do gráfico.
+                let chartMaxInstallments = 0;
+                if (profile1Name && profile2Name && profile1Name !== profile2Name) {
+                    chartMaxInstallments = Math.min(profile1MaxParcelas, profile2MaxParcelas);
+                } else if (profile1Name) {
+                    chartMaxInstallments = profile1MaxParcelas;
+                } else if (profile2Name) {
+                    chartMaxInstallments = profile2MaxParcelas;
+                }
+                if (chartMaxInstallments === 0) chartMaxInstallments = 18;
+
+                // Labels para o eixo X do gráfico
+                const labels = ['PIX', 'Débito', ...Array.from({ length: chartMaxInstallments }, (_, i) => `${i + 1}x`)];
+
+                // Prepara os dados para o Chart.js, incluindo PIX, débito e valores nulos para parcelas além do máximo
+                const data1 = labels.map(label => {
+                    if (label === 'PIX') {
+                        const pixMatch = profile1Data.find(d => d.forma === 'PIX');
+                        return pixMatch ? pixMatch.cet : null;
+                    } else if (label === 'Débito') {
+                        const debitMatch = profile1Data.find(d => d.forma === 'Débito');
+                        return debitMatch ? debitMatch.cet : null;
+                    } else {
+                        const installmentNum = parseInt(label.replace('x', ''));
+                        if (installmentNum > profile1MaxParcelas) return null;
+                        const match = profile1Data.find(d => d.display === `Parcelado ${label}`);
+                        return match ? match.cet : null;
+                    }
+                });
+                const data2 = labels.map(label => {
+                    if (label === 'PIX') {
+                        const pixMatch = profile2Data.find(d => d.forma === 'PIX');
+                        return pixMatch ? pixMatch.cet : null;
+                    } else if (label === 'Débito') {
+                        const debitMatch = profile2Data.find(d => d.forma === 'Débito');
+                        return debitMatch ? debitMatch.cet : null;
+                    } else {
+                        const installmentNum = parseInt(label.replace('x', ''));
+                        if (installmentNum > profile2MaxParcelas) return null;
+                        const match = profile2Data.find(d => d.display === `Parcelado ${label}`);
+                        return match ? match.cet : null;
+                    }
+                });
+
+                let datasets = [];
+
+                // Determina as cores das linhas com base no CET médio para indicar economia
+                const avgCet1 = data1.filter(val => val !== null).reduce((sum, val) => sum + val, 0) / data1.filter(val => val !== null).length;
+                const avgCet2 = data2.filter(val => val !== null).reduce((sum, val) => sum + val, 0) / data2.filter(val => val !== null).length;
+
+                let color1 = '#2563eb'; // Azul padrão
+                let color2 = '#2563eb'; // Azul padrão
+
+                // Atualiza o título do gráfico
+                let chartTitle = '';
+                if (profile1Name && profile2Name && profile1Name !== profile2Name) {
+                    chartTitle = `(${profile1Name} vs ${profile2Name})`;
+                    if (data1.filter(val => val !== null).length > 0 && data2.filter(val => val !== null).length > 0 && !isNaN(avgCet1) && !isNaN(avgCet2)) {
+                        if (avgCet1 < avgCet2) {
+                            color1 = '#22c55e'; // Verde para mais económico
+                            color2 = '#ef4444'; // Vermelho para menos económico
+                        } else if (avgCet2 < avgCet1) {
+                            color1 = '#ef4444'; // Vermelho para menos económico
+                            color2 = '#22c55e'; // Verde para mais económico
+                        }
+                    }
+                } else if (profile1Name) {
+                    chartTitle = `(${profile1Name})`;
+                } else if (profile2Name) {
+                    chartTitle = `(${profile2Name})`;
+                }
+                chartTitleProfiles.textContent = chartTitle;
+
+
+                if (profile1Data.length > 0) {
+                    datasets.push({
+                        label: `CET (%) - ${profile1Name}`,
+                        data: data1,
+                        borderColor: color1,
+                        backgroundColor: color1 + '1A',
+                        borderWidth: 2,
+                        pointBackgroundColor: color1,
+                        tension: 0.1,
+                        spanGaps: true,
+                        fill: false,
+                    });
+                }
+                if (profile2Data.length > 0 && profile1Name !== profile2Name) {
+                    datasets.push({
+                        label: `CET (%) - ${profile2Name}`,
+                        data: data2,
+                        borderColor: color2,
+                        backgroundColor: color2 + '1A',
+                        borderWidth: 2,
+                        pointBackgroundColor: color2,
+                        tension: 0.1,
+                        spanGaps: true,
+                        fill: false,
+                    });
+                }
+
+                const ctx = document.getElementById('rateChart').getContext('2d');
+                if (chartInstance) {
+                    chartInstance.destroy(); // Destrói a instância anterior do gráfico
+                }
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: { display: true, text: 'CET (%)' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Forma de Pagamento / Nº de Parcelas' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y !== null ? context.parsed.y.toFixed(2) : 'N/A'}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            /**
+             * Preenche um elemento select com todos os perfis de taxas disponíveis (pré-definidos e personalizados).
+             * @param {HTMLSelectElement} selectElement - O elemento select a ser preenchido.
+             * @param {string} defaultProfile - O nome do perfil a ser selecionado por padrão.
+             */
+            function populateAllProfileSelect(selectElement, defaultProfile) {
+                selectElement.innerHTML = '';
+                const allProfileNames = [...Object.keys(allRates), ...Object.keys(customProfiles)];
+                allProfileNames.forEach(profileName => {
+                    const option = document.createElement('option');
+                    option.value = profileName;
+                    option.textContent = profileName;
+                    selectElement.appendChild(option);
+                });
+                if (defaultProfile) {
+                    selectElement.value = defaultProfile;
+                } else if (allProfileNames.length > 0) {
+                    selectElement.value = allProfileNames[0];
+                }
+            }
+
+            /**
+             * Preenche um elemento select apenas com perfis de taxas personalizados.
+             * @param {HTMLSelectElement} selectElement - O elemento select a ser preenchido.
+             */
+            function populateCustomProfileSelect(selectElement) {
+                selectElement.innerHTML = '';
+                const customProfileNames = Object.keys(customProfiles);
+                if (customProfileNames.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "Nenhum Perfil Personalizado";
+                    selectElement.appendChild(option);
+                    selectElement.disabled = true;
+                } else {
+                    selectElement.disabled = false;
+                    customProfileNames.forEach(profileName => {
+                        const option = document.createElement('option');
+                        option.value = profileName;
+                        option.textContent = profileName;
+                        selectElement.appendChild(option);
+                    });
+                    selectElement.value = customProfileNames[0];
+                }
+            }
+
+            /**
+             * Atualiza a interface da calculadora (menu suspenso de método de pagamento e título).
+             * @param {number} calculatorId - O ID da calculadora (1 ou 2).
+             */
+            function updateCalculatorUI(calculatorId) {
+                const profileSelect = document.getElementById(`profile-select-${calculatorId}`);
+                const paymentMethodSelect = document.getElementById(`payment-method-${calculatorId}`);
+                const selectedProfileName = profileSelect.value;
+                
+                const profileResult = getProfileData(selectedProfileName); // Obtém os dados completos do perfil
+                let brandData = profileResult.data; // Dados para o perfil selecionado da calculadora atual
+                const profileMaxParcelas = profileResult.max_parcelas; // Máximo de parcelas para o perfil selecionado
+
+                // Armazena o valor atualmente selecionado antes de limpar as opções
+                const currentPaymentMethodValue = paymentMethodSelect.value;
+
+                // Atualiza o título da calculadora 2
+                const calcTitleElement = document.getElementById(`calc-title-${calculatorId}`);
+                if (calculatorId === 2) {
+                    calcTitleElement.textContent = selectedProfileName ? `${selectedProfileName}` : '';
+                    // Filtra brandData para a Calculadora 2 com base no max_parcelas do perfil personalizado selecionado
+                    brandData = brandData.filter(method => {
+                        if (method.forma.startsWith('Parcelado')) {
+                            const parcelas = parseInt(method.forma.replace('Parcelado ', '').replace('x', ''));
+                            return parcelas <= profileMaxParcelas; // Usa profileMaxParcelas (do perfil personalizado selecionado)
+                        }
+                        return true; // Mantém métodos não parcelados (Débito, PIX)
+                    });
+                } else if (calculatorId === 1) { // Lógica para limitar os métodos de pagamento da Calculadora 1
+                    const profile2Name = profileSelect2.value;
+                    const profile2ResultForCalc1 = getProfileData(profile2Name); // Obtém dados do perfil 2 para o filtro da calculadora 1
+                    const maxParcelasForCalc1Dropdown = profile2ResultForCalc1.max_parcelas;
+
+                    brandData = brandData.filter(method => {
+                        if (method.forma.startsWith('Parcelado')) {
+                            const parcelas = parseInt(method.forma.replace('Parcelado ', '').replace('x', ''));
+                            return parcelas <= maxParcelasForCalc1Dropdown;
+                        }
+                        return true;
+                    });
+                }
+
+                paymentMethodSelect.innerHTML = '';
+                if (brandData.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "N/A";
+                    paymentMethodSelect.appendChild(option);
+                    paymentMethodSelect.disabled = true;
+                } else {
+                    paymentMethodSelect.disabled = false;
+                    brandData.forEach((method, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = method.display;
+                        paymentMethodSelect.appendChild(option);
+                    });
+
+                    // Tenta re-selecionar o valor anteriormente selecionado
+                    // Verifica se o currentPaymentMethodValue ainda é um índice válido em brandData
+                    if (currentPaymentMethodValue !== "" && brandData[currentPaymentMethodValue]) {
+                        paymentMethodSelect.value = currentPaymentMethodValue;
+                    } else {
+                        // Caso contrário, seleciona a primeira opção disponível
+                        paymentMethodSelect.value = 0; // Seleciona a primeira opção por padrão
+                    }
+                }
+                calculateFees(calculatorId);
+            }
+
+            /**
+             * Calcula as taxas e o valor líquido a receber para uma calculadora específica.
+             * @param {number} calculatorId - O ID da calculadora (1 ou 2).
+             */
+            function calculateFees(calculatorId) {
+                const saleAmountInput = document.getElementById(`sale-amount-${calculatorId}`);
+                const paymentMethodSelect = document.getElementById(`payment-method-${calculatorId}`);
+                const profileSelect = document.getElementById(`profile-select-${calculatorId}`);
+                const resultsContainer = document.getElementById(`results-container-${calculatorId}`);
+
+                const amount = parseFloat(saleAmountInput.value);
+                const selectedIndex = paymentMethodSelect.value;
+                const selectedProfileName = profileSelect.value;
+
+                if (isNaN(amount) || amount <= 0 || selectedIndex === "" || selectedProfileName === "") {
+                    resultsContainer.classList.add('hidden');
+                    return;
+                }
+                
+                const methodData = getProfileData(selectedProfileName).data;
+                const method = methodData[selectedIndex];
+                if (!method) {
+                    resultsContainer.classList.add('hidden');
+                    return;
+                }
+
+                const cetFee = (amount * method.cet) / 100;
+                const netAmount = amount - cetFee;
+                const serviceFeeValue = (amount * method.servico) / 100;
+                const rateFeeValue = (amount * method.taxa) / 100;
+
+                document.getElementById(`result-service-fee-${calculatorId}`).textContent = `${formatCurrency(serviceFeeValue)} (${method.servico.toFixed(2)}%)`;
+                document.getElementById(`result-rate-${calculatorId}`).textContent = `${formatCurrency(rateFeeValue)} (${method.taxa.toFixed(2)}%)`;
+                document.getElementById(`result-cet-${calculatorId}`).textContent = `${formatCurrency(cetFee)} (${method.cet.toFixed(2)}%)`;
+                document.getElementById(`result-net-${calculatorId}`).textContent = formatCurrency(netAmount);
+
+                resultsContainer.classList.remove('hidden');
+            }
+
+            /**
+             * Limpa os campos de uma calculadora específica.
+             * @param {number} calculatorId - O ID da calculadora (1 ou 2).
+             */
+            function clearCalculator(calculatorId) {
+                document.getElementById(`sale-amount-${calculatorId}`).value = '';
+                document.getElementById(`payment-method-${calculatorId}`).value = '';
+                document.getElementById(`results-container-${calculatorId}`).classList.add('hidden');
+                if (calculatorId === 1) {
+                    populateAllProfileSelect(profileSelect1, currentBrand);
+                } else {
+                    populateCustomProfileSelect(profileSelect2);
+                }
+                updateCalculatorUI(calculatorId);
+            }
+
+            /**
+             * Adiciona um novo perfil personalizado com base nos dados inseridos pelo utilizador.
+             */
+            function addCustomProfile() {
+                const name = document.getElementById('custom-profile-name').value.trim();
+                const serviceRate = parseFloat(document.getElementById('custom-service-rate').value);
+                const taxaPix = parseFloat(document.getElementById('custom-rate-pix').value); // Nova taxa PIX
+                const taxaDebit = parseFloat(document.getElementById('custom-rate-debit').value);
+                const maxParcelas = parseInt(customMaxParcelasInput.value); // Usar o input atual
+
+                const parceladoRates = [];
+                let allRequiredParceladoRatesValid = true; 
+                for (let i = 1; i <= 18; i++) {
+                    const input = document.getElementById(`custom-rate-parcelado-${i}x`);
+                    const rate = parseFloat(input.value);
+                    
+                    if (i <= maxParcelas) {
+                        if (isNaN(rate)) {
+                            allRequiredParceladoRatesValid = false;
+                            break;
+                        }
+                        parceladoRates.push(rate);
+                    } else {
+                        parceladoRates.push(isNaN(rate) ? 0 : rate);
+                    }
+                }
+
+                if (!name || isNaN(serviceRate) || isNaN(taxaPix) || isNaN(taxaDebit) || !allRequiredParceladoRatesValid || isNaN(maxParcelas) || maxParcelas < 1 || maxParcelas > 18) {
+                    showCustomModal('Por favor, preencha todos os campos obrigatórios do perfil personalizado com valores válidos (incluindo a taxa de serviço, as taxas PIX e Débito, o máximo de parcelas entre 1 e 18, e as taxas da bandeira até o máximo de parcelas definido).');
+                    return;
+                }
+                if (allRates[name] || customProfiles[name]) {
+                    showCustomModal('Já existe um perfil com este nome. Por favor, escolha um nome diferente.');
+                    return;
+                }
+
+                customProfiles[name] = {
+                    name: name,
+                    service_rate: serviceRate,
+                    taxa_pix: taxaPix, // Armazena a taxa PIX
+                    taxa_debit: taxaDebit,
+                    parceladoRates: parceladoRates,
+                    max_parcelas: maxParcelas
+                };
+
+                // Limpa os campos de entrada
+                document.getElementById('custom-profile-name').value = '';
+                document.getElementById('custom-service-rate').value = '';
+                document.getElementById('custom-rate-pix').value = ''; // Limpa o campo PIX
+                document.getElementById('custom-rate-debit').value = '';
+                for (let i = 1; i <= 18; i++) {
+                    document.getElementById(`custom-rate-parcelado-${i}x`).value = '';
+                }
+                customMaxParcelasInput.value = '18'; // Redefine para o padrão
+
+                addProfileFeedback.classList.remove('hidden');
+                setTimeout(() => {
+                    addProfileFeedback.classList.add('hidden');
+                }, 3000);
+
+                updateApp();
+            }
+
+            /**
+             * Exibe os perfis personalizados salvos na lista.
+             */
+            function displaySavedCustomProfiles() {
+                savedCustomProfilesList.innerHTML = '';
+                const customProfileNames = Object.keys(customProfiles);
+
+                if (customProfileNames.length === 0) {
+                    noCustomProfilesMessage.classList.remove('hidden');
+                } else {
+                    noCustomProfilesMessage.classList.add('hidden');
+                    customProfileNames.forEach(profileName => {
+                        const profileDiv = document.createElement('div');
+                        profileDiv.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'bg-gray-100', 'rounded-md', 'shadow-sm');
+                        profileDiv.innerHTML = `
+                            <span class="font-medium text-gray-700">${profileName}</span>
+                        `;
+                        savedCustomProfilesList.appendChild(profileDiv);
+                    });
+                }
+            }
+
+            /**
+             * Inicializa os campos de input de parcelas dinamicamente.
+             * Cria todos os 18 campos, mas os oculta inicialmente.
+             */
+            function initializeParceladoInputs() {
+                parceladoInputsContainer.innerHTML = '<div class="col-span-full text-sm font-semibold text-gray-700 mt-2 mb-1">Taxas da Bandeira (Parcelado por X) %</div>';
+                for (let i = 1; i <= 18; i++) {
+                    const div = document.createElement('div');
+                    div.id = `parcelado-input-group-${i}x`; // Adiciona um ID para fácil referência
+                    div.classList.add('hidden'); // Oculta por padrão
+                    div.innerHTML = `
+                        <label for="custom-rate-parcelado-${i}x" class="block text-xs font-medium text-gray-700">Parcelado ${i}x</label>
+                        <input type="number" id="custom-rate-parcelado-${i}x" placeholder="0.00" step="0.01" class="mt-1 block w-full px-2 py-1 bg-white border border-slate-300 rounded-md text-xs shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    `;
+                    parceladoInputsContainer.appendChild(div);
+                }
+            }
+
+            /**
+             * Controla a visibilidade dos campos de input de parcelas com base no valor de 'Máximo de Parcelas para Comparativo'.
+             */
+            function updateParceladoInputsVisibility() {
+                const maxParcelas = parseInt(customMaxParcelasInput.value);
+                for (let i = 1; i <= 18; i++) {
+                    const inputGroup = document.getElementById(`parcelado-input-group-${i}x`);
+                    if (inputGroup) {
+                        if (i <= maxParcelas) {
+                            inputGroup.classList.remove('hidden');
+                        } else {
+                            inputGroup.classList.add('hidden');
+                        }
+                    }
+                }
+            }
+
+            /**
+             * Atualiza a tabela de comparação de taxas.
+             */
+            function updateComparisonTable() {
+                const profile1Name = profileSelect1.value;
+                const profile2Name = profileSelect2.value;
+                const saleAmount = parseFloat(saleAmountInput1.value) || 100;
+
+                tableHeaderProfile1Group.textContent = profile1Name;
+                tableHeaderProfile2Group.textContent = profile2Name;
+
+                comparisonTableBody.innerHTML = '';
+
+                if (!profile1Name || !profile2Name) {
+                    return;
+                }
+
+                const profile1Result = getProfileData(profile1Name);
+                const profile2Result = getProfileData(profile2Name);
+
+                const profile1Data = profile1Result.data;
+                const profile1MaxParcelas = profile1Result.max_parcelas;
+
+                const profile2Data = profile2Result.data;
+                const profile2MaxParcelas = profile2Result.max_parcelas;
+
+                const tableMaxInstallments = Math.min(profile1MaxParcelas, profile2MaxParcelas);
+
+                // Adiciona a linha de PIX
+                const pixRow = document.createElement('tr');
+                pixRow.classList.add('border-b', 'border-gray-300');
+                const pixMethod1 = profile1Data.find(d => d.forma === 'PIX');
+                const pixMethod2 = profile2Data.find(d => d.forma === 'PIX');
+
+                if (pixMethod1 && pixMethod2) {
+                    const servico1 = pixMethod1.servico;
+                    const taxa1 = pixMethod1.taxa;
+                    const cet1 = pixMethod1.cet;
+                    const net1 = saleAmount * (1 - cet1 / 100);
+
+                    const servico2 = pixMethod2.servico;
+                    const taxa2 = pixMethod2.taxa;
+                    const cet2 = pixMethod2.cet;
+                    const net2 = saleAmount * (1 - cet2 / 100);
+                    
+                    const economyValue = net1 - net2;
+                    let economyPercentage = 0;
+                    if (cet1 !== cet2) {
+                        economyPercentage = ((Math.max(cet1, cet2) - Math.min(cet1, cet2)) / Math.max(cet1, cet2)) * 100;
+                    }
+
+                    pixRow.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(saleAmount)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${taxa1.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${servico1.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${cet1.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${formatCurrency(net1)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${taxa2.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${servico2.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${cet2.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${formatCurrency(net2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                            ${economyValue !== 0 ? formatCurrency(Math.abs(economyValue)) : 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                            ${economyValue !== 0 ? economyPercentage.toFixed(2) + '%' : 'N/A'}
+                        </td>
+                    `;
+                    comparisonTableBody.appendChild(pixRow);
+                }
+
+
+                // Adiciona a linha de Débito
+                const debitRow = document.createElement('tr');
+                debitRow.classList.add('border-b', 'border-gray-300');
+                const debitMethod1 = profile1Data.find(d => d.forma === 'Débito');
+                const debitMethod2 = profile2Data.find(d => d.forma === 'Débito');
+
+                if (debitMethod1 && debitMethod2) {
+                    const servico1 = debitMethod1.servico;
+                    const taxa1 = debitMethod1.taxa;
+                    const cet1 = debitMethod1.cet;
+                    const net1 = saleAmount * (1 - cet1 / 100);
+
+                    const servico2 = debitMethod2.servico;
+                    const taxa2 = debitMethod2.taxa;
+                    const cet2 = debitMethod2.cet;
+                    const net2 = saleAmount * (1 - cet2 / 100);
+                    
+                    const economyValue = net1 - net2;
+                    let economyPercentage = 0;
+                    if (cet1 !== cet2) {
+                        economyPercentage = ((Math.max(cet1, cet2) - Math.min(cet1, cet2)) / Math.max(cet1, cet2)) * 100;
+                    }
+
+                    debitRow.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(saleAmount)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${taxa1.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${servico1.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${cet1.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${formatCurrency(net1)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${taxa2.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${servico2.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${cet2.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${formatCurrency(net2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                            ${economyValue !== 0 ? formatCurrency(Math.abs(economyValue)) : 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                            ${economyValue !== 0 ? economyPercentage.toFixed(2) + '%' : 'N/A'}
+                        </td>
+                    `;
+                    comparisonTableBody.appendChild(debitRow);
+                }
+
+                // Adiciona as linhas de Parcelamento
+                for (let i = 1; i <= tableMaxInstallments; i++) {
+                    const installmentRow = document.createElement('tr');
+                    installmentRow.classList.add('border-b', 'border-gray-300');
+                    const installmentMethod1 = profile1Data.find(d => d.forma === `Parcelado ${i}x`);
+                    const installmentMethod2 = profile2Data.find(d => d.forma === `Parcelado ${i}x`);
+
+                    if (installmentMethod1 && installmentMethod2) {
+                        const servico1 = installmentMethod1.servico;
+                        const taxa1 = installmentMethod1.taxa;
+                        const cet1 = installmentMethod1.cet;
+                        const net1 = saleAmount * (1 - cet1 / 100);
+
+                        const servico2 = installmentMethod2.servico;
+                        const taxa2 = installmentMethod2.taxa;
+                        const cet2 = installmentMethod2.cet;
+                        const net2 = saleAmount * (1 - cet2 / 100);
+                        
+                        const economyValue = net1 - net2;
+                        let economyPercentage = 0;
+                        if (cet1 !== cet2) {
+                            economyPercentage = ((Math.max(cet1, cet2) - Math.min(cet1, cet2)) / Math.max(cet1, cet2)) * 100;
+                        }
+
+                        installmentRow.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Parcelado ${i}x</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(saleAmount)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${taxa1.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${servico1.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${cet1.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-100">${formatCurrency(net1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${taxa2.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${servico2.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${cet2.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${formatCurrency(net2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                                ${economyValue !== 0 ? formatCurrency(Math.abs(economyValue)) : 'N/A'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                                ${economyValue !== 0 ? economyPercentage.toFixed(2) + '%' : 'N/A'}
+                            </td>
+                        `;
+                        comparisonTableBody.appendChild(installmentRow);
+                    }
+                }
+            }
+
+            // Listeners de Eventos para a Calculadora 1
+            saleAmountInput1.addEventListener('input', () => { calculateFees(1); updateComparisonTable(); }); 
+            paymentMethodSelect1.addEventListener('change', () => updateCalculatorUI(1)); 
+            profileSelect1.addEventListener('change', () => updateCalculatorUI(1));
+            clearCalc1Button.addEventListener('click', () => clearCalculator(1));
+
+            // Listeners de Eventos para a Calculadora 2
+            saleAmountInput2.addEventListener('input', () => { calculateFees(2); updateComparisonTable(); }); 
+            paymentMethodSelect2.addEventListener('change', () => updateCalculatorUI(2)); 
+            profileSelect2.addEventListener('change', () => updateCalculatorUI(2));
+            clearCalc2Button.addEventListener('click', () => clearCalculator(2));
+
+            // Outros listeners de eventos
+            addCustomProfileButton.addEventListener('click', addCustomProfile);
+            // Listener para o input de Máximo de Parcelas para Comparativo
+            customMaxParcelasInput.addEventListener('input', updateParceladoInputsVisibility);
+
+            // Listeners para os botões de navegação de página
+            document.querySelectorAll('.page-nav-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    showPage(event.target.dataset.page);
+                });
+            });
+            
+            initializeParceladoInputs(); // Inicializa os campos de input de parcelas ao carregar
+            updateApp(); // Carregamento inicial da aplicação
+        });
+    </script>
+</body>
+</html>
