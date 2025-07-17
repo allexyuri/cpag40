@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Taxas - Plano CPAG 40</title>
+    <title>Painel de Taxas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,14 +26,16 @@
             height: 40vh;
             max-height: 400px;
         }
-        .nav-button[aria-selected="true"] {
+        /* Corrigido: As classes Tailwind `bg-orange-500` e `bg-orange-100` são aplicadas diretamente no HTML. */
+        /* Removendo as regras CSS duplicadas para botões de navegação, pois Tailwind já as gerencia. */
+        /* .nav-button[aria-selected="true"] {
             background-color: #2563eb;
             color: white;
         }
         .nav-button[aria-selected="false"] {
             background-color: #ffffff;
             color: #374151;
-        }
+        } */
         /* Table specific styles for better visual separation */
         table {
             border-collapse: collapse; /* Ensures borders are single lines */
@@ -100,20 +102,24 @@
     <!-- Container principal com largura máxima e centralização para melhor visualização em telas grandes, e padding responsivo -->
     <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-screen-xl">
         
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Painel de Taxas</h1>
-            <p class="text-lg text-slate-600 mt-1">Plano CPAG 40 - Athos Pay</p>
+        <header class="flex items-center justify-between mb-8 sticky top-0 z-50 bg-slate-50">
+            <div class="flex items-center">
+                <!-- Para puxar uma imagem da mesma pasta, use apenas o nome do arquivo da imagem. -->
+                <!-- Exemplo: se sua imagem se chama 'logocolorida.svg' e está na mesma pasta que este arquivo index.html -->
+                <img src="logocolorida.svg" alt="Logo da Empresa" class="h-10 w-auto rounded-md mr-4">
+            </div>
+            
+            <!-- Navegação principal por páginas -->
+            <nav class="flex-grow min-w-0">
+                <div id="main-nav-container" class="flex flex-wrap justify-end gap-2">
+                    <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-500 text-white" data-page="custom-profile-page" aria-selected="true">Perfil Personalizado</button>
+                    <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="comparison-details-page" aria-selected="false">Detalhes da Comparação</button>
+                    <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="calculators-page" aria-selected="false">Calculadoras</button>
+                    <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="chart-page" aria-selected="false">Gráfico</button>
+                </div>
+            </nav>
         </header>
 
-        <!-- Navegação principal por páginas -->
-        <nav class="mb-8">
-            <div id="main-nav-container" class="flex flex-wrap justify-center gap-2">
-                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="custom-profile-page" aria-selected="true">Perfil Personalizado</button>
-                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="comparison-details-page" aria-selected="false">Detalhes da Comparação</button>
-                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="calculators-page" aria-selected="false">Calculadoras</button>
-                <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-slate-300 hover:bg-slate-100 transition-colors" data-page="chart-page" aria-selected="false">Gráfico</button>
-            </div>
-        </nav>
 
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
@@ -192,8 +198,8 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">Serviço<br>Alíquota (%)</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">CET (%)</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">Líquido (R$)</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-yellow-100">Economia (R$)</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-yellow-100">Economia (%)</th>
+                                    <th scope="col" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-yellow-100">Economia (R$)</th>
+                                    <th scope="col" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-yellow-100">Economia (%)</th>
                                 </tr>
                             </thead>
                             <tbody id="comparison-table-body">
@@ -297,11 +303,12 @@
             </div>
 
         </main>
-        
-        <footer class="text-center mt-12 text-sm text-slate-500">
-            <p>Valores baseados no documento de taxas do plano CPAG 40. Data de emissão do documento: 16/07/2025.</p>
-        </footer>
     </div>
+    
+    <!-- Novo rodapé cobrindo toda a largura e com fundo azul marinho mais escuro -->
+    <footer class="w-full py-4 bg-blue-950 text-white text-center text-sm mt-12">
+        <p>Esta é uma aplicação demonstrativa para fins de análise e não possui vínculo comercial direto.</p>
+    </footer>
 
     <!-- Custom Modal Structure -->
     <div id="custom-modal" class="modal hidden">
@@ -374,6 +381,7 @@
             let currentBrand = "PIX/Visa"; // Marca principal selecionada pelos botões de navegação
             let chartInstance = null; // Instância do Chart.js
             let currentPage = 'custom-profile-page'; // Página inicial padrão
+            let editingProfileName = null; // Variável para controlar qual perfil está sendo editado
 
             // Elementos da Calculadora 1
             const saleAmountInput1 = document.getElementById('sale-amount-1');
@@ -414,7 +422,6 @@
             const parceladoInputsContainer = document.getElementById('parcelado-inputs-container');
             const toggleCustomProfileButton = document.getElementById('toggle-custom-profile'); // Novo botão
             const customProfileContent = document.getElementById('custom-profile-content'); // Conteúdo a ser recolhido/expandido
-
 
             // Elementos do Modal Personalizado
             const customModal = document.getElementById('custom-modal');
@@ -472,7 +479,15 @@
              */
             function updateActiveButton() {
                 document.querySelectorAll('.page-nav-button').forEach(btn => {
-                    btn.setAttribute('aria-selected', btn.dataset.page === currentPage);
+                    if (btn.dataset.page === currentPage) {
+                        btn.classList.add('bg-orange-500', 'text-white');
+                        btn.classList.remove('bg-orange-100', 'text-orange-800');
+                        btn.setAttribute('aria-selected', 'true');
+                    } else {
+                        btn.classList.remove('bg-orange-500', 'text-white');
+                        btn.classList.add('bg-orange-100', 'text-orange-800');
+                        btn.setAttribute('aria-selected', 'false');
+                    }
                 });
             }
 
@@ -481,7 +496,7 @@
              */
             function updateApp() {
                 populateAllProfileSelect(profileSelect1, profileSelect1.value || currentBrand);
-                populateCustomProfileSelect(profileSelect2);
+                populateCustomProfileSelect(profileSelect2, profileSelect2.value); // Passa o valor atual para tentar manter a seleção
                 showPage(currentPage);
             }
 
@@ -729,8 +744,9 @@
             /**
              * Preenche um elemento select apenas com perfis de taxas personalizados.
              * @param {HTMLSelectElement} selectElement - O elemento select a ser preenchido.
+             * @param {string} [defaultProfile] - O nome do perfil a ser selecionado por padrão.
              */
-            function populateCustomProfileSelect(selectElement) {
+            function populateCustomProfileSelect(selectElement, defaultProfile) {
                 selectElement.innerHTML = '';
                 const customProfileNames = Object.keys(customProfiles);
                 if (customProfileNames.length === 0) {
@@ -747,7 +763,12 @@
                         option.textContent = profileName;
                         selectElement.appendChild(option);
                     });
-                    selectElement.value = customProfileNames[0];
+                    // Prioriza o defaultProfile se fornecido e válido, caso contrário, o primeiro perfil
+                    if (defaultProfile && customProfileNames.includes(defaultProfile)) {
+                        selectElement.value = defaultProfile;
+                    } else if (customProfileNames.length > 0) {
+                        selectElement.value = customProfileNames[0];
+                    }
                 }
             }
 
@@ -878,13 +899,14 @@
 
             /**
              * Adiciona um novo perfil personalizado com base nos dados inseridos pelo utilizador.
+             * Ou atualiza um perfil existente se `editingProfileName` estiver definido.
              */
             function addCustomProfile() {
                 const name = document.getElementById('custom-profile-name').value.trim();
                 const serviceRate = parseFloat(document.getElementById('custom-service-rate').value);
-                const taxaPix = parseFloat(document.getElementById('custom-rate-pix').value); // Nova taxa PIX
+                const taxaPix = parseFloat(document.getElementById('custom-rate-pix').value);
                 const taxaDebit = parseFloat(document.getElementById('custom-rate-debit').value);
-                const maxParcelas = parseInt(customMaxParcelasInput.value); // Usar o input atual
+                const maxParcelas = parseInt(customMaxParcelasInput.value);
 
                 const parceladoRates = [];
                 let allRequiredParceladoRatesValid = true; 
@@ -907,7 +929,17 @@
                     showCustomModal('Por favor, preencha todos os campos obrigatórios do perfil personalizado com valores válidos (incluindo a taxa de serviço, as taxas PIX e Débito, o máximo de parcelas entre 1 e 18, e as taxas da bandeira até o máximo de parcelas definido).');
                     return;
                 }
-                if (allRates[name] || customProfiles[name]) {
+
+                if (editingProfileName && editingProfileName !== name) {
+                    // Se o nome foi alterado durante a edição, verifica se o novo nome já existe
+                    if (allRates[name] || customProfiles[name]) {
+                        showCustomModal('Já existe um perfil com este novo nome. Por favor, escolha um nome diferente.');
+                        return;
+                    }
+                    // Remove o perfil antigo se o nome foi alterado
+                    delete customProfiles[editingProfileName];
+                } else if (!editingProfileName && (allRates[name] || customProfiles[name])) {
+                    // Se não estiver editando e o nome já existe, impede a adição
                     showCustomModal('Já existe um perfil com este nome. Por favor, escolha um nome diferente.');
                     return;
                 }
@@ -915,32 +947,71 @@
                 customProfiles[name] = {
                     name: name,
                     service_rate: serviceRate,
-                    taxa_pix: taxaPix, // Armazena a taxa PIX
+                    taxa_pix: taxaPix,
                     taxa_debit: taxaDebit,
                     parceladoRates: parceladoRates,
                     max_parcelas: maxParcelas
                 };
 
-                // Limpa os campos de entrada
+                // Limpa os campos de entrada e redefine o estado de edição
                 document.getElementById('custom-profile-name').value = '';
                 document.getElementById('custom-service-rate').value = '';
-                document.getElementById('custom-rate-pix').value = ''; // Limpa o campo PIX
+                document.getElementById('custom-rate-pix').value = '';
                 document.getElementById('custom-rate-debit').value = '';
                 for (let i = 1; i <= 18; i++) {
                     document.getElementById(`custom-rate-parcelado-${i}x`).value = '';
                 }
-                customMaxParcelasInput.value = '18'; // Redefine para o padrão
+                customMaxParcelasInput.value = '18';
+
+                editingProfileName = null; // Reseta o estado de edição
+                addCustomProfileButton.textContent = 'Adicionar Perfil Personalizado'; // Restaura o texto do botão
 
                 addProfileFeedback.classList.remove('hidden');
                 setTimeout(() => {
                     addProfileFeedback.classList.add('hidden');
                 }, 3000);
 
-                // Recolhe a seção após adicionar o perfil
+                // Recolhe a seção após adicionar/editar o perfil
                 customProfileContent.classList.add('hidden');
                 toggleCustomProfileButton.textContent = '+';
 
                 updateApp();
+            }
+
+            /**
+             * Preenche os campos de input do perfil personalizado com os dados do perfil selecionado para edição.
+             * @param {string} profileName - O nome do perfil a ser editado.
+             */
+            function editCustomProfile(profileName) {
+                const profile = customProfiles[profileName];
+                if (profile) {
+                    editingProfileName = profileName; // Define o perfil que está sendo editado
+
+                    document.getElementById('custom-profile-name').value = profile.name;
+                    document.getElementById('custom-service-rate').value = profile.service_rate;
+                    document.getElementById('custom-rate-pix').value = profile.taxa_pix;
+                    document.getElementById('custom-rate-debit').value = profile.taxa_debit;
+                    customMaxParcelasInput.value = profile.max_parcelas;
+
+                    for (let i = 1; i <= 18; i++) {
+                        const input = document.getElementById(`custom-rate-parcelado-${i}x`);
+                        if (input) {
+                            input.value = profile.parceladoRates[i - 1] !== undefined ? profile.parceladoRates[i - 1] : '';
+                        }
+                    }
+
+                    updateParceladoInputsVisibility(); // Atualiza a visibilidade dos campos de parcela
+
+                    addCustomProfileButton.textContent = 'Salvar Alterações'; // Altera o texto do botão
+                    
+                    // Expande a seção de perfil personalizado se estiver recolhida
+                    if (customProfileContent.classList.contains('hidden')) {
+                        customProfileContent.classList.remove('hidden');
+                        toggleCustomProfileButton.textContent = '-';
+                    }
+
+                    showPage('custom-profile-page'); // Navega para a página de perfil personalizado
+                }
             }
 
             /**
@@ -959,8 +1030,39 @@
                         profileDiv.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'bg-gray-100', 'rounded-md', 'shadow-sm');
                         profileDiv.innerHTML = `
                             <span class="font-medium text-gray-700">${profileName}</span>
+                            <div class="flex space-x-2">
+                                <button class="compare-profile-button bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition-colors" data-profile-name="${profileName}">Comparar</button>
+                                <button class="edit-profile-button bg-orange-500 text-white px-3 py-1 rounded-md text-sm hover:bg-orange-600 transition-colors" data-profile-name="${profileName}">Editar</button>
+                            </div>
                         `;
                         savedCustomProfilesList.appendChild(profileDiv);
+                    });
+
+                    // Adiciona listeners aos novos botões de edição
+                    document.querySelectorAll('.edit-profile-button').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const profileName = event.target.dataset.profileName;
+                            editCustomProfile(profileName);
+                        });
+                    });
+
+                    // Adiciona listeners aos novos botões de comparação
+                    document.querySelectorAll('.compare-profile-button').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const profileName = event.target.dataset.profileName;
+                            
+                            // 1. Popula e seleciona o perfil correto na calculadora 2
+                            populateCustomProfileSelect(profileSelect2, profileName);
+                            updateCalculatorUI(2); // Atualiza a UI da calculadora 2 com o perfil recém-selecionado
+
+                            // 2. Define o perfil 1 para o padrão "PIX/Visa" para uma comparação consistente
+                            profileSelect1.value = currentBrand;
+                            updateCalculatorUI(1); // Atualiza a UI da calculadora 1
+
+                            // 3. Navega para a página de comparação e atualiza a tabela e o gráfico
+                            showPage('comparison-details-page');
+                            // updateComparisonTable() e updateChart() são chamados por showPage() e updateCalculatorUI() respectivamente.
+                        });
                     });
                 }
             }
