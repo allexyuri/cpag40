@@ -221,7 +221,6 @@
     </div>
 
     <script>
-        // Variáveis globais relacionadas ao Firebase foram removidas.
         // customProfiles agora é apenas um objeto local.
         let customProfiles = {}; 
         let currentBrand = "PIX/Visa"; // Marca principal selecionada pelos botões de navegação
@@ -320,7 +319,6 @@
         const tableHeaderProfile2Group = document.getElementById('table-header-profile2-group');
         const savedCustomProfilesList = document.getElementById('saved-custom-profiles-list');
         const noCustomProfilesMessage = document.getElementById('no-custom-profiles-message');
-        // A mensagem de carregamento não é mais necessária sem o Firebase
         const parceladoInputsContainer = document.getElementById('parcelado-inputs-container');
         const toggleCustomProfileButton = document.getElementById('toggle-custom-profile');
         const customProfileContent = document.getElementById('custom-profile-content');
@@ -333,10 +331,34 @@
         /**
          * Exibe o modal personalizado com uma mensagem específica.
          * @param {string} message - A mensagem a ser exibida no modal.
+         * @param {function} [onConfirm] - Função a ser executada se o utilizador confirmar (para caixas de diálogo de confirmação).
+         * @param {boolean} [showCancel=false] - Se deve mostrar o botão de cancelar.
          */
-        function showCustomModal(message) {
-            modalMessage.textContent = message;
+        function showCustomModal(message, onConfirm = null, showCancel = false) {
+            modalMessage.innerHTML = message; // Usar innerHTML para permitir formatação (negrito)
             customModal.classList.remove('hidden');
+
+            const modalButtons = document.querySelector('.modal-buttons');
+            modalButtons.innerHTML = ''; // Limpa botões anteriores
+
+            const okButton = document.createElement('button');
+            okButton.textContent = 'OK';
+            okButton.classList.add('bg-blue-600', 'text-white', 'py-2', 'px-4', 'rounded-md', 'shadow-sm', 'hover:bg-blue-700', 'transition-colors', 'font-medium');
+            okButton.addEventListener('click', () => {
+                hideCustomModal();
+                if (onConfirm) {
+                    onConfirm();
+                }
+            });
+            modalButtons.appendChild(okButton);
+
+            if (showCancel) {
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancelar';
+                cancelButton.classList.add('bg-gray-400', 'text-white', 'py-2', 'px-4', 'rounded-md', 'shadow-sm', 'hover:bg-gray-500', 'transition-colors', 'font-medium', 'ml-2');
+                cancelButton.addEventListener('click', hideCustomModal);
+                modalButtons.appendChild(cancelButton);
+            }
         }
 
         /**
@@ -346,8 +368,41 @@
             customModal.classList.add('hidden');
         }
 
-        // Listener para fechar o modal
+        // Listener para fechar o modal (apenas para o botão OK padrão, o showCustomModal recria os botões)
         modalCloseButton.addEventListener('click', hideCustomModal);
+
+        /**
+         * Salva os perfis personalizados no localStorage.
+         */
+        function saveCustomProfiles() {
+            try {
+                localStorage.setItem('customProfilesCPAG40', JSON.stringify(customProfiles));
+                console.log("Perfis guardados no localStorage.");
+            } catch (e) {
+                console.error("Erro ao guardar perfis no localStorage:", e);
+                showCustomModal("Erro: Não foi possível guardar os perfis. O armazenamento local pode estar cheio ou desativado.");
+            }
+        }
+
+        /**
+         * Carrega os perfis personalizados do localStorage.
+         */
+        function loadCustomProfiles() {
+            try {
+                const storedProfiles = localStorage.getItem('customProfilesCPAG40');
+                if (storedProfiles) {
+                    customProfiles = JSON.parse(storedProfiles);
+                    console.log("Perfis carregados do localStorage.");
+                } else {
+                    customProfiles = {}; // Garante que é um objeto vazio se não houver dados
+                    console.log("Nenhum perfil encontrado no localStorage. Iniciando com perfis vazios.");
+                }
+            } catch (e) {
+                console.error("Erro ao carregar perfis do localStorage:", e);
+                showCustomModal("Erro: Não foi possível carregar os perfis guardados. Os dados podem estar corrompidos.");
+                customProfiles = {}; // Limpa perfis em caso de erro de carregamento
+            }
+        }
 
         /**
          * Exibe a página selecionada e oculta as outras.
@@ -822,7 +877,7 @@
                     showCustomModal('Já existe um perfil com este novo nome. Por favor, escolha um nome diferente.');
                     return;
                 }
-                // Se o nome foi alterado, remove o perfil antigo do objeto local
+                // Se o nome foi alterado, remove o perfil antigo do objeto local e do localStorage
                 delete customProfiles[editingProfileName];
             } else if (!editingProfileName && (allRates[name] || customProfiles[name])) {
                 showCustomModal('Já existe um perfil com este nome. Por favor, escolha um nome diferente.');
@@ -840,6 +895,7 @@
                 };
                 // Adiciona ou atualiza o perfil no objeto local
                 customProfiles[name] = profileData;
+                saveCustomProfiles(); // Guarda no localStorage
 
                 // Limpa os campos de entrada e redefine o estado de edição
                 document.getElementById('custom-profile-name').value = '';
@@ -906,15 +962,16 @@
         }
 
         /**
-         * Remove um perfil personalizado do objeto local.
+         * Remove um perfil personalizado do objeto local e do localStorage.
          * @param {string} profileName - O nome do perfil a ser removido.
          */
         async function deleteCustomProfile(profileName) {
-            if (confirm(`Tem certeza que deseja apagar o perfil "${profileName}"?`)) {
+            showCustomModal(`Tem certeza que deseja apagar o perfil "<b>${profileName}</b>"?`, () => {
                 delete customProfiles[profileName];
-                showCustomModal(`Perfil "${profileName}" removido com sucesso!`);
+                saveCustomProfiles(); // Guarda no localStorage
+                showCustomModal(`Perfil "<b>${profileName}</b>" removido com sucesso!`);
                 updateApp(); // Atualiza a UI
-            }
+            }, true); // showCancel = true
         }
 
         /**
@@ -952,9 +1009,7 @@
                 document.querySelectorAll('.delete-profile-button').forEach(button => {
                     button.addEventListener('click', (event) => {
                         const profileName = event.target.dataset.profileName;
-                        if (confirm(`Tem certeza que deseja apagar o perfil "${profileName}"?`)) {
-                            deleteCustomProfile(profileName);
-                        }
+                        deleteCustomProfile(profileName); // Usa o modal personalizado
                     });
                 });
 
@@ -970,9 +1025,6 @@
                 });
             }
         }
-
-        // A função startListeningForCustomProfiles não é mais necessária sem o Firebase.
-
 
         /**
          * Inicializa os campos de input de parcelas dinamicamente.
@@ -1170,7 +1222,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Variáveis globais db, auth, userId não são mais necessárias.
+            // Carrega os perfis guardados no localStorage ao iniciar
+            loadCustomProfiles();
 
             // Listeners de Eventos para a Calculadora 1
             saleAmountInput1.addEventListener('input', () => { calculateFees(1); updateComparisonTable(); }); 
