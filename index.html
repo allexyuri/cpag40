@@ -119,9 +119,14 @@
             
             <!-- Página 4: Perfil Personalizado (agora a primeira) -->
             <div id="custom-profile-page" class="page-content lg:col-span-2">
-                <section class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold mb-4">Taxas da Operadora Atual</h2>
-                    <div id="custom-profile-content">
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8"> <!-- Adicionado mb-8 para espaçamento -->
+                    <h2 class="text-xl font-bold mb-4 flex justify-between items-center">
+                        Taxas da Operadora Atual
+                        <button id="toggle-custom-profile" class="text-blue-600 hover:text-blue-800 focus:outline-none text-2xl font-bold leading-none">
+                            + <!-- Alterado para '+' para indicar que está recolhido por padrão -->
+                        </button>
+                    </h2>
+                    <div id="custom-profile-content" class="hidden"> <!-- Adicionado 'hidden' para recolher por padrão -->
                         <p class="text-sm text-slate-500 mb-6">Defina um novo perfil de taxas para comparação. Insira as taxas da bandeira para cada parcela (1x a 18x).</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div>
@@ -152,14 +157,14 @@
                         </div>
                         <button id="add-custom-profile" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-700 transition-colors font-medium">Adicionar Perfil Personalizado</button>
                         <div id="add-profile-feedback" class="mt-2 text-sm text-center text-green-600 hidden">Perfil adicionado com sucesso!</div>
+                    </div>
+                </section>
 
-                        <div class="mt-8 pt-6 border-t border-slate-200">
-                            <h3 class="text-lg font-bold mb-4">Perfis Personalizados Salvos</h3>
-                            <div id="saved-custom-profiles-list" class="space-y-2">
-                                <!-- Perfis salvos serão listados aqui -->
-                                <p class="text-sm text-gray-500" id="no-custom-profiles-message">Nenhum perfil personalizado salvo ainda.</p>
-                            </div>
-                        </div>
+                <section class="bg-white p-6 rounded-xl shadow-md">
+                    <h3 class="text-xl font-bold mb-4">Perfis Personalizados Salvos</h3>
+                    <div id="saved-custom-profiles-list" class="space-y-2">
+                        <!-- Perfis salvos serão listados aqui -->
+                        <p class="text-sm text-gray-500" id="no-custom-profiles-message">Nenhum perfil personalizado salvo ainda.</p>
                     </div>
                 </section>
             </div>
@@ -407,6 +412,9 @@
             const savedCustomProfilesList = document.getElementById('saved-custom-profiles-list');
             const noCustomProfilesMessage = document.getElementById('no-custom-profiles-message');
             const parceladoInputsContainer = document.getElementById('parcelado-inputs-container');
+            const toggleCustomProfileButton = document.getElementById('toggle-custom-profile'); // Novo botão
+            const customProfileContent = document.getElementById('custom-profile-content'); // Conteúdo a ser recolhido/expandido
+
 
             // Elementos do Modal Personalizado
             const customModal = document.getElementById('custom-modal');
@@ -928,6 +936,10 @@
                     addProfileFeedback.classList.add('hidden');
                 }, 3000);
 
+                // Recolhe a seção após adicionar o perfil
+                customProfileContent.classList.add('hidden');
+                toggleCustomProfileButton.textContent = '+';
+
                 updateApp();
             }
 
@@ -1174,6 +1186,16 @@
                 button.addEventListener('click', (event) => {
                     showPage(event.target.dataset.page);
                 });
+            });
+
+            // Lógica para o botão de recolhimento/expansão
+            toggleCustomProfileButton.addEventListener('click', () => {
+                customProfileContent.classList.toggle('hidden');
+                if (customProfileContent.classList.contains('hidden')) {
+                    toggleCustomProfileButton.textContent = '+';
+                } else {
+                    toggleCustomProfileButton.textContent = '-';
+                }
             });
             
             initializeParceladoInputs(); // Inicializa os campos de input de parcelas ao carregar
