@@ -126,7 +126,7 @@
             </div>
             
             <!-- Hamburger Menu Icon for Mobile -->
-            <div id="hamburger-icon" class="hamburger-menu lg:hidden mr-2"> <!-- Adicionado mr-2 aqui -->
+            <div id="hamburger-icon" class="hamburger-menu lg:hidden mr-2">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -1385,6 +1385,26 @@
             
             initializeParceladoInputs();
             updateApp(); // Carregamento inicial da aplicação
+
+            // NOVO: Listener para redimensionamento da janela
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) { // Se a largura da tela for maior ou igual ao breakpoint 'lg' do Tailwind
+                    mainNavContainer.classList.remove('hidden', 'open'); // Garante que a navegação principal esteja visível
+                    mainNavContainer.style.display = 'flex'; // Força display flex
+                    hamburgerIcon.classList.add('hidden'); // Oculta o ícone do hambúrguer
+                    hamburgerIcon.classList.remove('open'); // Remove a classe 'open' do hambúrguer
+                } else {
+                    // Em telas menores, o CSS já lida com a exibição do hambúrguer e ocultação da navegação
+                    // Apenas garante que o hambúrguer esteja visível e a navegação oculta se não estiver "aberta"
+                    hamburgerIcon.classList.remove('hidden');
+                    if (!mainNavContainer.classList.contains('open')) {
+                         mainNavContainer.style.display = 'none';
+                    }
+                }
+            });
+
+            // Chama a função de redimensionamento uma vez ao carregar para definir o estado inicial correto
+            window.dispatchEvent(new Event('resize'));
         });
     </script>
 </body>
