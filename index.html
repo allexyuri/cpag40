@@ -260,81 +260,83 @@
             </div>
 
             <div id="calculators-page" class="page-content hidden lg:col-span-2">
-                <section class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold mb-4">Athos Pay <span id="calc-title-1" class="text-base text-slate-600 font-normal"></span></h2>
-                    <p class="text-sm text-slate-500 mb-6">Insira o valor da venda para ver as taxas aplicadas e o valor líquido a receber.</p>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="profile-select-1" class="block text-sm font-medium text-gray-700">Perfil de Taxas</label>
-                            <select id="profile-select-1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8"> <!-- Novo contêiner para as calculadoras -->
+                    <section class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-xl font-bold mb-4">Athos Pay <span id="calc-title-1" class="text-base text-slate-600 font-normal"></span></h2>
+                        <p class="text-sm text-slate-500 mb-6">Insira o valor da venda para ver as taxas aplicadas e o valor líquido a receber.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="profile-select-1" class="block text-sm font-medium text-gray-700">Perfil de Taxas</label>
+                                <select id="profile-select-1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                            </div>
+                            <div>
+                                <label for="sale-amount-1" class="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
+                                <input type="number" id="sale-amount-1" placeholder="100.00" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="payment-method-1" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+                                <select id="payment-method-1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                            </div>
                         </div>
-                        <div>
-                            <label for="sale-amount-1" class="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
-                            <input type="number" id="sale-amount-1" placeholder="100.00" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <div id="results-container-1" class="mt-6 pt-6 border-t border-slate-200 space-y-3 hidden">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Taxa de Serviço:</span>
+                                <span id="result-service-fee-1" class="font-medium text-gray-800"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Taxa da Bandeira:</span>
+                                <span id="result-rate-1" class="font-medium text-gray-800"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg">
+                                <span class="font-semibold text-red-600">Custo Total (CET):</span>
+                                <span id="result-cet-1" class="font-bold text-red-600"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg mt-4 bg-green-100 p-3 rounded-lg">
+                                <span class="font-semibold text-green-800">Valor Líquido a Receber:</span>
+                                <span id="result-net-1" class="font-bold text-green-800"></span>
+                            </div>
                         </div>
-                        <div>
-                            <label for="payment-method-1" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
-                            <select id="payment-method-1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
-                        </div>
-                    </div>
-                    <div id="results-container-1" class="mt-6 pt-6 border-t border-slate-200 space-y-3 hidden">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-600">Taxa de Serviço:</span>
-                            <span id="result-service-fee-1" class="font-medium text-gray-800"></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-600">Taxa da Bandeira:</span>
-                            <span id="result-rate-1" class="font-medium text-gray-800"></span>
-                        </div>
-                        <div class="flex justify-between items-center text-lg">
-                            <span class="font-semibold text-red-600">Custo Total (CET):</span>
-                            <span id="result-cet-1" class="font-bold text-red-600"></span>
-                        </div>
-                        <div class="flex justify-between items-center text-lg mt-4 bg-green-100 p-3 rounded-lg">
-                            <span class="font-semibold text-green-800">Valor Líquido a Receber:</span>
-                            <span id="result-net-1" class="font-bold text-green-800"></span>
-                        </div>
-                    </div>
-                    <button id="clear-calc-1" class="mt-6 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md shadow-sm hover:bg-gray-300 transition-colors font-medium">Limpar</button>
-                </section>
+                        <button id="clear-calc-1" class="mt-6 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md shadow-sm hover:bg-gray-300 transition-colors font-medium">Limpar</button>
+                    </section>
 
-                <section class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold mb-4" id="calc-title-2"></h2>
-                    <p class="text-sm text-slate-500 mb-6">Compare com um perfil de taxas personalizado.</p>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="profile-select-2" class="block text-sm font-medium text-gray-700">Perfil Personalizado</label>
-                            <select id="profile-select-2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                    <section class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-xl font-bold mb-4" id="calc-title-2"></h2>
+                        <p class="text-sm text-slate-500 mb-6">Compare com um perfil de taxas personalizado.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="profile-select-2" class="block text-sm font-medium text-gray-700">Perfil Personalizado</label>
+                                <select id="profile-select-2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                            </div>
+                            <div>
+                                <label for="sale-amount-2" class="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
+                                <input type="number" id="sale-amount-2" placeholder="100.00" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="payment-method-2" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+                                <select id="payment-method-2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                            </div>
                         </div>
-                        <div>
-                            <label for="sale-amount-2" class="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
-                            <input type="number" id="sale-amount-2" placeholder="100.00" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <div id="results-container-2" class="mt-6 pt-6 border-t border-slate-200 space-y-3 hidden">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Taxa de Serviço/Alíquota:</span>
+                                <span id="result-service-fee-2" class="font-medium text-gray-800"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Taxa da Bandeira:</span>
+                                <span id="result-rate-2" class="font-medium text-gray-800"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg">
+                                <span class="font-semibold text-red-600">Custo Total (CET):</span>
+                                <span id="result-cet-2" class="font-bold text-red-600"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg mt-4 bg-green-100 p-3 rounded-lg">
+                                <span class="font-semibold text-green-800">Valor Líquido a Receber:</span>
+                                <span id="result-net-2" class="font-bold text-green-800"></span>
+                            </div>
                         </div>
-                        <div>
-                            <label for="payment-method-2" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
-                            <select id="payment-method-2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
-                        </div>
-                    </div>
-                    <div id="results-container-2" class="mt-6 pt-6 border-t border-slate-200 space-y-3 hidden">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-600">Taxa de Serviço/Alíquota:</span>
-                            <span id="result-service-fee-2" class="font-medium text-gray-800"></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-600">Taxa da Bandeira:</span>
-                            <span id="result-rate-2" class="font-medium text-gray-800"></span>
-                        </div>
-                        <div class="flex justify-between items-center text-lg">
-                            <span class="font-semibold text-red-600">Custo Total (CET):</span>
-                            <span id="result-cet-2" class="font-bold text-red-600"></span>
-                        </div>
-                        <div class="flex justify-between items-center text-lg mt-4 bg-green-100 p-3 rounded-lg">
-                            <span class="font-semibold text-green-800">Valor Líquido a Receber:</span>
-                            <span id="result-net-2" class="font-bold text-green-800"></span>
-                        </div>
-                    </div>
-                    <button id="clear-calc-2" class="mt-6 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md shadow-sm hover:bg-gray-300 transition-colors font-medium">Limpar</button>
-                </section>
+                        <button id="clear-calc-2" class="mt-6 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md shadow-sm hover:bg-gray-300 transition-colors font-medium">Limpar</button>
+                    </section>
+                </div> <!-- Fim do novo contêiner para as calculadoras -->
             </div>
 
             <div id="chart-page" class="page-content hidden lg:col-span-2">
@@ -367,15 +369,21 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-pix-bandeira">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-pix-aliquota">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-pix-cet">N/A</td>
+                                </tr>
+                                <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-taxa">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-imposto">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-bandeira">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-aliquota">N/A</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-cet">N/A</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito 1x antecipado</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-taxa">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-imposto">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-bandeira">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-aliquota">N/A</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-cet">N/A</td>
                                 </tr>
                             </tbody>
@@ -396,6 +404,12 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0,99%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,99%</td>
+                                </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,05%</td>
@@ -433,6 +447,12 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-pix-current-cet">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">2,99%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="comp-pix-diff">N/A</td>
+                                </tr>
+                                <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-debit-current-cet">N/A</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">3,05%</td>
@@ -451,7 +471,11 @@
 
                 <section class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-xl font-bold mb-4">ECONOMIA GERADA</h2>
-                    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label for="tpv-pix" class="block text-sm font-medium text-gray-700">TPV PIX (R$)</label>
+                            <input type="number" id="tpv-pix" value="10000" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        </div>
                         <div>
                             <label for="tpv-debit" class="block text-sm font-medium text-gray-700">TPV Débito (R$)</label>
                             <input type="number" id="tpv-debit" value="20000" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
@@ -472,6 +496,12 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-percent">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-tpv">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-monthly">N/A</td>
+                                </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-percent">N/A</td>
@@ -635,22 +665,31 @@
 
         // Elementos da página Resumo Athos Pay
         const athosSummaryProfileSelect = document.getElementById('athos-summary-profile-select');
-        const currentDebitTaxa = document.getElementById('current-debit-taxa');
-        const currentDebitImposto = document.getElementById('current-debit-imposto');
+        const currentPixBandeira = document.getElementById('current-pix-bandeira');
+        const currentPixAliquota = document.getElementById('current-pix-aliquota');
+        const currentPixCet = document.getElementById('current-pix-cet');
+        const currentDebitBandeira = document.getElementById('current-debit-bandeira');
+        const currentDebitAliquota = document.getElementById('current-debit-aliquota');
         const currentDebitCet = document.getElementById('current-debit-cet');
-        const currentCreditTaxa = document.getElementById('current-credit-taxa');
-        const currentCreditImposto = document.getElementById('current-credit-imposto');
+        const currentCreditBandeira = document.getElementById('current-credit-bandeira');
+        const currentCreditAliquota = document.getElementById('current-credit-aliquota');
         const currentCreditCet = document.getElementById('current-credit-cet');
+        const compPixCurrentCet = document.getElementById('comp-pix-current-cet');
         const compDebitCurrentCet = document.getElementById('comp-debit-current-cet');
         const compCreditCurrentCet = document.getElementById('comp-credit-current-cet');
+        const compPixDiff = document.getElementById('comp-pix-diff');
         const compDebitDiff = document.getElementById('comp-debit-diff');
         const compCreditDiff = document.getElementById('comp-credit-diff');
-        const econDebitPercent = document.getElementById('econ-debit-percent');
+        const econPixPercent = document.getElementById('econ-pix-percent');
         const econCreditPercent = document.getElementById('econ-credit-percent');
+        const econDebitPercent = document.getElementById('econ-debit-percent');
+        const tpvPixInput = document.getElementById('tpv-pix');
         const tpvDebitInput = document.getElementById('tpv-debit');
         const tpvCreditInput = document.getElementById('tpv-credit');
+        const econPixTpv = document.getElementById('econ-pix-tpv');
         const econDebitTpv = document.getElementById('econ-debit-tpv');
         const econCreditTpv = document.getElementById('econ-credit-tpv');
+        const econPixMonthly = document.getElementById('econ-pix-monthly');
         const econDebitMonthly = document.getElementById('econ-debit-monthly');
         const econCreditMonthly = document.getElementById('econ-credit-monthly');
         const econTotalMonthly = document.getElementById('econ-total-monthly');
@@ -1575,44 +1614,72 @@
             const selectedProfileName = athosSummaryProfileSelect.value;
             const currentProfileData = getProfileData(selectedProfileName).data;
 
-            const athosDebitCet = 3.05; // Hardcoded from image
-            const athosCreditCet = 6.27; // Hardcoded from image (Crédito 1x antecipado)
-            const custoSetap = 89.90; // Hardcoded from image
+            const athosPixCet = 2.99; // Hardcoded
+            const athosDebitCet = 3.05; // Hardcoded
+            const athosCreditCet = 6.27; // Hardcoded (Crédito 1x antecipado)
+            const custoOperacional = 89.90; // Hardcoded
+
+            let currentPixCetVal = 'N/A';
+            let currentPixBandeiraVal = 'N/A';
+            let currentPixAliquotaVal = 'N/A';
 
             let currentDebitCetVal = 'N/A';
+            let currentDebitBandeiraVal = 'N/A';
+            let currentDebitAliquotaVal = 'N/A';
+
             let currentCreditCetVal = 'N/A';
-            let currentDebitTaxaVal = 'N/A';
-            let currentDebitImpostoVal = 'N/A';
-            let currentCreditTaxaVal = 'N/A';
-            let currentCreditImpostoVal = 'N/A';
+            let currentCreditBandeiraVal = 'N/A';
+            let currentCreditAliquotaVal = 'N/A';
+
+            // Find PIX data in the selected profile
+            const pixData = currentProfileData.find(d => d.forma === 'PIX');
+            if (pixData) {
+                currentPixCetVal = pixData.cet;
+                currentPixBandeiraVal = pixData.taxa;
+                currentPixAliquotaVal = pixData.servico;
+            }
 
             // Find Débito data in the selected profile
             const debitData = currentProfileData.find(d => d.forma === 'Débito');
             if (debitData) {
                 currentDebitCetVal = debitData.cet;
-                currentDebitTaxaVal = debitData.taxa;
-                currentDebitImpostoVal = debitData.servico; // Usando 'servico' como 'imposto' para este contexto
+                currentDebitBandeiraVal = debitData.taxa;
+                currentDebitAliquotaVal = debitData.servico;
             }
 
             // Find Crédito 1x antecipado data in the selected profile
             const credit1xData = currentProfileData.find(d => d.forma === 'Parcelado 1x');
             if (credit1xData) {
                 currentCreditCetVal = credit1xData.cet;
-                currentCreditTaxaVal = credit1xData.taxa;
-                currentCreditImpostoVal = credit1xData.servico; // Usando 'servico' como 'imposto' para este contexto
+                currentCreditBandeiraVal = credit1xData.taxa;
+                currentCreditAliquotaVal = credit1xData.servico;
             }
 
             // Update "SUA MÁQUINA ATUAL" table
-            currentDebitTaxa.textContent = currentDebitTaxaVal !== 'N/A' ? `${currentDebitTaxaVal.toFixed(2)}%` : 'N/A';
-            currentDebitImposto.textContent = currentDebitImpostoVal !== 'N/A' ? `${currentDebitImpostoVal.toFixed(2)}%` : 'N/A';
+            currentPixBandeira.textContent = currentPixBandeiraVal !== 'N/A' ? `${currentPixBandeiraVal.toFixed(2)}%` : 'N/A';
+            currentPixAliquota.textContent = currentPixAliquotaVal !== 'N/A' ? `${currentPixAliquotaVal.toFixed(2)}%` : 'N/A';
+            currentPixCet.textContent = currentPixCetVal !== 'N/A' ? `${currentPixCetVal.toFixed(2)}%` : 'N/A';
+
+            currentDebitBandeira.textContent = currentDebitBandeiraVal !== 'N/A' ? `${currentDebitBandeiraVal.toFixed(2)}%` : 'N/A';
+            currentDebitAliquota.textContent = currentDebitAliquotaVal !== 'N/A' ? `${currentDebitAliquotaVal.toFixed(2)}%` : 'N/A';
             currentDebitCet.textContent = currentDebitCetVal !== 'N/A' ? `${currentDebitCetVal.toFixed(2)}%` : 'N/A';
-            currentCreditTaxa.textContent = currentCreditTaxaVal !== 'N/A' ? `${currentCreditTaxaVal.toFixed(2)}%` : 'N/A';
-            currentCreditImposto.textContent = currentCreditImpostoVal !== 'N/A' ? `${currentCreditImpostoVal.toFixed(2)}%` : 'N/A';
+            
+            currentCreditBandeira.textContent = currentCreditBandeiraVal !== 'N/A' ? `${currentCreditBandeiraVal.toFixed(2)}%` : 'N/A';
+            currentCreditAliquota.textContent = currentCreditAliquotaVal !== 'N/A' ? `${currentCreditAliquotaVal.toFixed(2)}%` : 'N/A';
             currentCreditCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
 
             // Update "COMPARATIVO C.E.T." table
+            compPixCurrentCet.textContent = currentPixCetVal !== 'N/A' ? `${currentPixCetVal.toFixed(2)}%` : 'N/A';
             compDebitCurrentCet.textContent = currentDebitCetVal !== 'N/A' ? `${currentDebitCetVal.toFixed(2)}%` : 'N/A';
             compCreditCurrentCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
+
+            let pixDiff = 'N/A';
+            if (currentPixCetVal !== 'N/A') {
+                pixDiff = (currentPixCetVal - athosPixCet).toFixed(2);
+                compPixDiff.textContent = `${pixDiff}%`;
+            } else {
+                compPixDiff.textContent = 'N/A';
+            }
 
             let debitDiff = 'N/A';
             if (currentDebitCetVal !== 'N/A') {
@@ -1631,11 +1698,25 @@
             }
 
             // Update "ECONOMIA GERADA" table
+            const tpvPix = parseFloat(tpvPixInput.value) || 0;
             const tpvDebit = parseFloat(tpvDebitInput.value) || 0;
             const tpvCredit = parseFloat(tpvCreditInput.value) || 0;
 
+            econPixTpv.textContent = formatCurrency(tpvPix);
             econDebitTpv.textContent = formatCurrency(tpvDebit);
             econCreditTpv.textContent = formatCurrency(tpvCredit);
+
+            let econPixPercentVal = 'N/A';
+            let econPixMonthlyVal = 'N/A';
+            if (pixDiff !== 'N/A') {
+                econPixPercentVal = pixDiff;
+                econPixMonthlyVal = (tpvPix * (pixDiff / 100));
+                econPixPercent.textContent = `${econPixPercentVal}%`;
+                econPixMonthly.textContent = formatCurrency(econPixMonthlyVal);
+            } else {
+                econPixPercent.textContent = 'N/A';
+                econPixMonthly.textContent = 'N/A';
+            }
 
             let econDebitPercentVal = 'N/A';
             let econDebitMonthlyVal = 'N/A';
@@ -1662,9 +1743,10 @@
             }
             
             let totalMonthlyProfit = 0;
+            if (typeof econPixMonthlyVal === 'number') totalMonthlyProfit += econPixMonthlyVal;
             if (typeof econDebitMonthlyVal === 'number') totalMonthlyProfit += econDebitMonthlyVal;
             if (typeof econCreditMonthlyVal === 'number') totalMonthlyProfit += econCreditMonthlyVal;
-            totalMonthlyProfit -= custoSetap;
+            totalMonthlyProfit -= custoOperacional;
 
             econTotalMonthly.textContent = formatCurrency(totalMonthlyProfit);
             econTotalAnnual.textContent = formatCurrency(totalMonthlyProfit * 12);
@@ -1688,6 +1770,7 @@
 
             // Listeners de Eventos para a página Resumo Athos Pay
             athosSummaryProfileSelect.addEventListener('change', updateAthosSummaryPage);
+            tpvPixInput.addEventListener('input', updateAthosSummaryPage);
             tpvDebitInput.addEventListener('input', updateAthosSummaryPage);
             tpvCreditInput.addEventListener('input', updateAthosSummaryPage);
 
