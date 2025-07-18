@@ -124,6 +124,24 @@
         footer {
             margin-top: auto; /* Empurra o rodapé para a parte inferior */
         }
+
+        /* Estilos para o indicador de carregamento da IA */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        .loading-indicator svg {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -148,6 +166,7 @@
                     <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="comparison-details-page" aria-selected="false">Detalhes da Comparação</button>
                     <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="calculators-page" aria-selected="false">Calculadoras</button>
                     <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="chart-page" aria-selected="false">Gráfico</button>
+                    <button class="page-nav-button px-4 py-2 text-sm font-medium rounded-md shadow-sm border border-orange-300 hover:bg-orange-200 transition-colors bg-orange-100 text-orange-800" data-page="athos-summary-page" aria-selected="false">Resumo Athos Pay</button>
                 </div>
             </nav>
         </div>
@@ -319,11 +338,168 @@
             </div>
 
             <div id="chart-page" class="page-content hidden lg:col-span-2">
-                <section class="bg-white p-6 rounded-xl shadow-md">
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8">
                     <h2 class="text-xl font-bold mb-1">Comparativo de Economia (CET) por Forma de Pagamento <span id="chart-title-profiles" class="text-base text-slate-600 font-normal"></span></h2>
                     <p class="text-sm text-slate-500 mb-4">A linha verde indica o perfil com menor CET (maior economia). As linhas do gráfico terminam na parcela máxima definida para cada perfil.</p>
                     <div class="chart-container">
                         <canvas id="rateChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Nova Página: Resumo Athos Pay -->
+            <div id="athos-summary-page" class="page-content hidden lg:col-span-2">
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-xl font-bold mb-4">SUA MÁQUINA ATUAL</h2>
+                    <div class="mb-4">
+                        <label for="athos-summary-profile-select" class="block text-sm font-medium text-gray-700">Selecione o Perfil Atual:</label>
+                        <select id="athos-summary-profile-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MODALIDADE</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BANDEIRA</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ALÍQUOTA</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">C.E.T. (CUSTO EFETIVO TOTAL)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-taxa">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-imposto">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-debit-cet">N/A</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito 1x antecipado</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-taxa">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-imposto">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="current-credit-cet">N/A</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-xl font-bold mb-4">ATHOS PAY</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MODALIDADE</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BANDEIRA</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SERVIÇO</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">C.E.T. (CUSTO EFETIVO TOTAL)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,05%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3,05%</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito 1x antecipado</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3,27%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">6,27%</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 89,90</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-xl font-bold mb-4">COMPARATIVO C.E.T. (CUSTO EFETIVO TOTAL) EM %</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MODALIDADE</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-red-100">C.E.T. ATUAL</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-orange-100">C.E.T. ATHOS</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DIFERENÇA / LUCRO</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-debit-current-cet">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">3,05%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="comp-debit-diff">N/A</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-credit-current-cet">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">6,27%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="comp-credit-diff">N/A</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-4">ECONOMIA GERADA</h2>
+                    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="tpv-debit" class="block text-sm font-medium text-gray-700">TPV Débito (R$)</label>
+                            <input type="number" id="tpv-debit" value="20000" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="tpv-credit" class="block text-sm font-medium text-gray-700">TPV Crédito (R$)</label>
+                            <input type="number" id="tpv-credit" value="20000" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MODALIDADE</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECONOMIA %</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TPV $</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LUCRO $ MENSAL</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-percent">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-tpv">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-monthly">N/A</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-percent">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-tpv">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-monthly">N/A</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-R$ 89,90</td>
+                                </tr>
+                                <tr class="bg-green-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" colspan="3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-total-monthly">N/A</td>
+                                </tr>
+                                <tr class="bg-green-100">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" colspan="3">ECONOMIA ANUAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" id="econ-total-annual">N/A</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </section>
             </div>
@@ -358,11 +534,14 @@
             "PIX/Visa": [
                 { "display": "PIX", "forma": "PIX", "taxa": 0.99, "servico": 2, "cet": 2.99 },
                 { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
+                { "display": "Crédito 1x", "forma": "Parcelado 1x", "taxa": 3.27, "servico": 3, "cet": 6.27 }, // Adicionado para corresponder à imagem
                 ...Array.from({ length: 18 }, (_, i) => {
                     const parcelas = i + 1;
                     const cetMap = { 1: 6.27, 2: 8.02, 3: 9.47, 4: 10.91, 5: 12.36, 6: 13.80, 7: 15.61, 8: 17.05, 9: 18.49, 10: 19.92, 11: 21.36, 12: 22.80, 13: 25.24, 14: 26.66, 15: 28.08, 16: 29.50, 17: 30.91, 18: 32.33 };
                     const cet = cetMap[parcelas];
-                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                    // Certifica-se de que a taxa de serviço seja 3 para parcelados
+                    const servico = 3; 
+                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
                 })
             ],
             "Mastercard": [
@@ -453,6 +632,30 @@
         const customModal = document.getElementById('custom-modal');
         const modalMessage = document.getElementById('modal-message');
         const modalCloseButton = document.getElementById('modal-close-button');
+
+        // Elementos da página Resumo Athos Pay
+        const athosSummaryProfileSelect = document.getElementById('athos-summary-profile-select');
+        const currentDebitTaxa = document.getElementById('current-debit-taxa');
+        const currentDebitImposto = document.getElementById('current-debit-imposto');
+        const currentDebitCet = document.getElementById('current-debit-cet');
+        const currentCreditTaxa = document.getElementById('current-credit-taxa');
+        const currentCreditImposto = document.getElementById('current-credit-imposto');
+        const currentCreditCet = document.getElementById('current-credit-cet');
+        const compDebitCurrentCet = document.getElementById('comp-debit-current-cet');
+        const compCreditCurrentCet = document.getElementById('comp-credit-current-cet');
+        const compDebitDiff = document.getElementById('comp-debit-diff');
+        const compCreditDiff = document.getElementById('comp-credit-diff');
+        const econDebitPercent = document.getElementById('econ-debit-percent');
+        const econCreditPercent = document.getElementById('econ-credit-percent');
+        const tpvDebitInput = document.getElementById('tpv-debit');
+        const tpvCreditInput = document.getElementById('tpv-credit');
+        const econDebitTpv = document.getElementById('econ-debit-tpv');
+        const econCreditTpv = document.getElementById('econ-credit-tpv');
+        const econDebitMonthly = document.getElementById('econ-debit-monthly');
+        const econCreditMonthly = document.getElementById('econ-credit-monthly');
+        const econTotalMonthly = document.getElementById('econ-total-monthly');
+        const econTotalAnnual = document.getElementById('econ-total-annual');
+
 
         /**
          * Exibe o modal personalizado com uma mensagem específica.
@@ -559,6 +762,9 @@
             } else if (pageId === 'custom-profile-page') {
                 displaySavedCustomProfiles();
                 updateParceladoInputsVisibility();
+            } else if (pageId === 'athos-summary-page') {
+                populateCustomProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value);
+                updateAthosSummaryPage();
             }
         }
 
@@ -631,6 +837,16 @@
                     "taxa": taxaDebit,
                     "servico": serviceRate,
                     "cet": parseFloat((taxaDebit + serviceRate).toFixed(2))
+                });
+
+                // Crédito 1x antecipado para perfis personalizados
+                const credit1xTaxa = parceladoRates[0]; // Assume que Parcelado 1x é o primeiro na lista
+                data.push({
+                    "display": "Crédito 1x antecipado",
+                    "forma": "Parcelado 1x",
+                    "taxa": credit1xTaxa,
+                    "servico": serviceRate,
+                    "cet": parseFloat((credit1xTaxa + serviceRate).toFixed(2))
                 });
 
                 for (let i = 1; i <= 18; i++) {
@@ -1213,9 +1429,9 @@
             const profile2Result = getProfileData(profile2Name);
 
             const profile1Data = profile1Result.data;
-            const profile1MaxParcelas = profile1Result.max_parcelas;
-
             const profile2Data = profile2Result.data;
+
+            const profile1MaxParcelas = profile1Result.max_parcelas;
             const profile2MaxParcelas = profile2Result.max_parcelas;
 
             const tableMaxInstallments = Math.min(profile1MaxParcelas, profile2MaxParcelas);
@@ -1352,6 +1568,108 @@
             }
         }
 
+        /**
+         * Atualiza os dados na página "Resumo Athos Pay" com base no perfil selecionado e TPVs.
+         */
+        function updateAthosSummaryPage() {
+            const selectedProfileName = athosSummaryProfileSelect.value;
+            const currentProfileData = getProfileData(selectedProfileName).data;
+
+            const athosDebitCet = 3.05; // Hardcoded from image
+            const athosCreditCet = 6.27; // Hardcoded from image (Crédito 1x antecipado)
+            const custoSetap = 89.90; // Hardcoded from image
+
+            let currentDebitCetVal = 'N/A';
+            let currentCreditCetVal = 'N/A';
+            let currentDebitTaxaVal = 'N/A';
+            let currentDebitImpostoVal = 'N/A';
+            let currentCreditTaxaVal = 'N/A';
+            let currentCreditImpostoVal = 'N/A';
+
+            // Find Débito data in the selected profile
+            const debitData = currentProfileData.find(d => d.forma === 'Débito');
+            if (debitData) {
+                currentDebitCetVal = debitData.cet;
+                currentDebitTaxaVal = debitData.taxa;
+                currentDebitImpostoVal = debitData.servico; // Usando 'servico' como 'imposto' para este contexto
+            }
+
+            // Find Crédito 1x antecipado data in the selected profile
+            const credit1xData = currentProfileData.find(d => d.forma === 'Parcelado 1x');
+            if (credit1xData) {
+                currentCreditCetVal = credit1xData.cet;
+                currentCreditTaxaVal = credit1xData.taxa;
+                currentCreditImpostoVal = credit1xData.servico; // Usando 'servico' como 'imposto' para este contexto
+            }
+
+            // Update "SUA MÁQUINA ATUAL" table
+            currentDebitTaxa.textContent = currentDebitTaxaVal !== 'N/A' ? `${currentDebitTaxaVal.toFixed(2)}%` : 'N/A';
+            currentDebitImposto.textContent = currentDebitImpostoVal !== 'N/A' ? `${currentDebitImpostoVal.toFixed(2)}%` : 'N/A';
+            currentDebitCet.textContent = currentDebitCetVal !== 'N/A' ? `${currentDebitCetVal.toFixed(2)}%` : 'N/A';
+            currentCreditTaxa.textContent = currentCreditTaxaVal !== 'N/A' ? `${currentCreditTaxaVal.toFixed(2)}%` : 'N/A';
+            currentCreditImposto.textContent = currentCreditImpostoVal !== 'N/A' ? `${currentCreditImpostoVal.toFixed(2)}%` : 'N/A';
+            currentCreditCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
+
+            // Update "COMPARATIVO C.E.T." table
+            compDebitCurrentCet.textContent = currentDebitCetVal !== 'N/A' ? `${currentDebitCetVal.toFixed(2)}%` : 'N/A';
+            compCreditCurrentCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
+
+            let debitDiff = 'N/A';
+            if (currentDebitCetVal !== 'N/A') {
+                debitDiff = (currentDebitCetVal - athosDebitCet).toFixed(2);
+                compDebitDiff.textContent = `${debitDiff}%`;
+            } else {
+                compDebitDiff.textContent = 'N/A';
+            }
+
+            let creditDiff = 'N/A';
+            if (currentCreditCetVal !== 'N/A') {
+                creditDiff = (currentCreditCetVal - athosCreditCet).toFixed(2);
+                compCreditDiff.textContent = `${creditDiff}%`;
+            } else {
+                compCreditDiff.textContent = 'N/A';
+            }
+
+            // Update "ECONOMIA GERADA" table
+            const tpvDebit = parseFloat(tpvDebitInput.value) || 0;
+            const tpvCredit = parseFloat(tpvCreditInput.value) || 0;
+
+            econDebitTpv.textContent = formatCurrency(tpvDebit);
+            econCreditTpv.textContent = formatCurrency(tpvCredit);
+
+            let econDebitPercentVal = 'N/A';
+            let econDebitMonthlyVal = 'N/A';
+            if (debitDiff !== 'N/A') {
+                econDebitPercentVal = debitDiff;
+                econDebitMonthlyVal = (tpvDebit * (debitDiff / 100));
+                econDebitPercent.textContent = `${econDebitPercentVal}%`;
+                econDebitMonthly.textContent = formatCurrency(econDebitMonthlyVal);
+            } else {
+                econDebitPercent.textContent = 'N/A';
+                econDebitMonthly.textContent = 'N/A';
+            }
+
+            let econCreditPercentVal = 'N/A';
+            let econCreditMonthlyVal = 'N/A';
+            if (creditDiff !== 'N/A') {
+                econCreditPercentVal = creditDiff;
+                econCreditMonthlyVal = (tpvCredit * (creditDiff / 100));
+                econCreditPercent.textContent = `${econCreditPercentVal}%`;
+                econCreditMonthly.textContent = formatCurrency(econCreditMonthlyVal);
+            } else {
+                econCreditPercent.textContent = 'N/A';
+                econCreditMonthly.textContent = 'N/A';
+            }
+            
+            let totalMonthlyProfit = 0;
+            if (typeof econDebitMonthlyVal === 'number') totalMonthlyProfit += econDebitMonthlyVal;
+            if (typeof econCreditMonthlyVal === 'number') totalMonthlyProfit += econCreditMonthlyVal;
+            totalMonthlyProfit -= custoSetap;
+
+            econTotalMonthly.textContent = formatCurrency(totalMonthlyProfit);
+            econTotalAnnual.textContent = formatCurrency(totalMonthlyProfit * 12);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Carrega os perfis guardados no localStorage ao iniciar
             loadCustomProfiles();
@@ -1367,6 +1685,12 @@
             paymentMethodSelect2.addEventListener('change', () => updateCalculatorUI(2)); 
             profileSelect2.addEventListener('change', () => updateCalculatorUI(2));
             clearCalc2Button.addEventListener('click', () => clearCalculator(2));
+
+            // Listeners de Eventos para a página Resumo Athos Pay
+            athosSummaryProfileSelect.addEventListener('change', updateAthosSummaryPage);
+            tpvDebitInput.addEventListener('input', updateAthosSummaryPage);
+            tpvCreditInput.addEventListener('input', updateAthosSummaryPage);
+
 
             // Outros listeners de eventos
             addCustomProfileButton.addEventListener('click', addCustomProfile);
