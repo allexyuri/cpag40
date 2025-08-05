@@ -426,7 +426,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 89,90</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="athos-custo-operacional-display">R$ 89,90</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -484,6 +484,11 @@
                             <label for="tpv-credit" class="block text-sm font-medium text-gray-700">TPV Crédito (R$)</label>
                             <input type="number" id="tpv-credit" value="20000" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                         </div>
+                        <!-- NOVO: Campo para Custo Operacional -->
+                        <div>
+                            <label for="custo-operacional-input" class="block text-sm font-medium text-gray-700">Custo Operacional (R$)</label>
+                            <input type="number" id="custo-operacional-input" value="89.90" step="0.01" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -522,8 +527,8 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 89,90</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-R$ 89,90</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="athos-custo-operacional-display-table">R$ 89,90</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-custo-operacional-monthly">-R$ 89,90</td>
                                 </tr>
                                 <tr class="bg-green-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" colspan="4">ECONOMIA TOTAL MENSAL</td>
@@ -700,6 +705,12 @@
         const tpvPixInput = document.getElementById('tpv-pix');
         const tpvDebitInput = document.getElementById('tpv-debit');
         const tpvCreditInput = document.getElementById('tpv-credit');
+        // NOVO: Elementos para o custo operacional
+        const custoOperacionalInput = document.getElementById('custo-operacional-input');
+        const athosCustoOperacionalDisplay = document.getElementById('athos-custo-operacional-display');
+        const athosCustoOperacionalDisplayTable = document.getElementById('athos-custo-operacional-display-table');
+        const econCustoOperacionalMonthly = document.getElementById('econ-custo-operacional-monthly');
+
         const econPixMonthly = document.getElementById('econ-pix-monthly');
         const econDebitMonthly = document.getElementById('econ-debit-monthly');
         const econCreditMonthly = document.getElementById('econ-credit-monthly');
@@ -1338,7 +1349,7 @@
                 document.getElementById('custom-rate-debit').value = profile.taxa_debit;
                 customMaxParcelasInput.value = profile.max_parcelas;
 
-                for (let i = 1; i <= 18; i++) {
+                for (let i = 1; i => 18; i++) {
                     const input = document.getElementById(`custom-rate-parcelado-${i}x`);
                     if (input) {
                         input.value = profile.parceladoRates[i - 1] !== undefined ? profile.parceladoRates[i - 1] : '';
@@ -1628,7 +1639,7 @@
             const athosPixCet = 2.99; // Hardcoded
             const athosDebitCet = 3.05; // Hardcoded
             const athosCreditCet = 6.27; // Hardcoded (Crédito 1x antecipado)
-            const custoOperacional = 89.90; // Hardcoded
+            const custoOperacional = parseFloat(custoOperacionalInput.value) || 0; // Agora lê do input
 
             let currentPixCetVal = 'N/A';
             let currentPixBandeiraVal = 'N/A';
@@ -1774,6 +1785,12 @@
             if (typeof econCreditMonthlyVal === 'number') totalMonthlyProfit += econCreditMonthlyVal;
             totalMonthlyProfit -= custoOperacional;
 
+            // Atualiza o display do custo operacional na tabela "ATHOS PAY"
+            athosCustoOperacionalDisplay.textContent = formatCurrency(custoOperacional);
+            athosCustoOperacionalDisplayTable.textContent = formatCurrency(custoOperacional);
+            econCustoOperacionalMonthly.textContent = formatCurrency(-custoOperacional);
+
+
             econTotalMonthly.textContent = formatCurrency(totalMonthlyProfit);
             econTotalAnnual.textContent = formatCurrency(totalMonthlyProfit * 12);
         }
@@ -1799,6 +1816,7 @@
             tpvPixInput.addEventListener('input', updateAthosSummaryPage);
             tpvDebitInput.addEventListener('input', updateAthosSummaryPage);
             tpvCreditInput.addEventListener('input', updateAthosSummaryPage);
+            custoOperacionalInput.addEventListener('input', updateAthosSummaryPage); // NOVO: Listener para o custo operacional
 
 
             // Outros listeners de eventos
