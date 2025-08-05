@@ -469,8 +469,8 @@
                     </div>
                 </section>
 
-                <section class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold mb-4">ECONOMIA GERADA</h2>
+                <section class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-xl font-bold mb-4">TPV TOTAL DO CLIENTE E ECONOMIA GERADA</h2>
                     <div class="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label for="tpv-pix" class="block text-sm font-medium text-gray-700">TPV PIX (R$)</label>
@@ -490,42 +490,47 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MODALIDADE</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECONOMIA %</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TPV $</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LUCRO $ MENSAL</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-red-100">CUSTO ATUAL $</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-orange-100">CUSTO ATHOS $</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-100">ECONOMIA GERADA $</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-percent">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-tpv">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-monthly">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-pix-tpv-display">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="cost-pix-current">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50" id="cost-pix-athos">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-50" id="econ-pix-monthly">N/A</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-percent">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-tpv">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-monthly">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-debit-tpv-display">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="cost-debit-current">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50" id="cost-debit-athos">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-50" id="econ-debit-monthly">N/A</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-percent">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-tpv">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-monthly">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-credit-tpv-display">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="cost-credit-current">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50" id="cost-credit-athos">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-50" id="econ-credit-monthly">N/A</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 89,90</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-R$ 89,90</td>
                                 </tr>
                                 <tr class="bg-green-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" colspan="3"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="econ-total-monthly">N/A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" colspan="4">ECONOMIA TOTAL MENSAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" id="econ-total-monthly">N/A</td>
                                 </tr>
                                 <tr class="bg-green-100">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" colspan="3">ECONOMIA ANUAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" colspan="4">ECONOMIA TOTAL ANUAL</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" id="econ-total-annual">N/A</td>
                                 </tr>
                             </tbody>
@@ -680,15 +685,21 @@
         const compPixDiff = document.getElementById('comp-pix-diff');
         const compDebitDiff = document.getElementById('comp-debit-diff');
         const compCreditDiff = document.getElementById('comp-credit-diff');
-        const econPixPercent = document.getElementById('econ-pix-percent');
-        const econCreditPercent = document.getElementById('econ-credit-percent');
-        const econDebitPercent = document.getElementById('econ-debit-percent');
+        
+        // Elementos para a nova tabela de TPV e Custos
+        const econPixTpvDisplay = document.getElementById('econ-pix-tpv-display');
+        const econDebitTpvDisplay = document.getElementById('econ-debit-tpv-display');
+        const econCreditTpvDisplay = document.getElementById('econ-credit-tpv-display');
+        const costPixCurrent = document.getElementById('cost-pix-current');
+        const costDebitCurrent = document.getElementById('cost-debit-current');
+        const costCreditCurrent = document.getElementById('cost-credit-current');
+        const costPixAthos = document.getElementById('cost-pix-athos');
+        const costDebitAthos = document.getElementById('cost-debit-athos');
+        const costCreditAthos = document.getElementById('cost-credit-athos');
+
         const tpvPixInput = document.getElementById('tpv-pix');
         const tpvDebitInput = document.getElementById('tpv-debit');
         const tpvCreditInput = document.getElementById('tpv-credit');
-        const econPixTpv = document.getElementById('econ-pix-tpv');
-        const econDebitTpv = document.getElementById('econ-debit-tpv');
-        const econCreditTpv = document.getElementById('econ-credit-tpv');
         const econPixMonthly = document.getElementById('econ-pix-monthly');
         const econDebitMonthly = document.getElementById('econ-debit-monthly');
         const econCreditMonthly = document.getElementById('econ-credit-monthly');
@@ -1697,48 +1708,63 @@
                 compCreditDiff.textContent = 'N/A';
             }
 
-            // Update "ECONOMIA GERADA" table
+            // Update "TPV TOTAL DO CLIENTE E ECONOMIA GERADA" table
             const tpvPix = parseFloat(tpvPixInput.value) || 0;
             const tpvDebit = parseFloat(tpvDebitInput.value) || 0;
             const tpvCredit = parseFloat(tpvCreditInput.value) || 0;
 
-            econPixTpv.textContent = formatCurrency(tpvPix);
-            econDebitTpv.textContent = formatCurrency(tpvDebit);
-            econCreditTpv.textContent = formatCurrency(tpvCredit);
+            econPixTpvDisplay.textContent = formatCurrency(tpvPix);
+            econDebitTpvDisplay.textContent = formatCurrency(tpvDebit);
+            econCreditTpvDisplay.textContent = formatCurrency(tpvCredit);
 
-            let econPixPercentVal = 'N/A';
+            let costPixCurrentVal = 'N/A';
+            let costPixAthosVal = 'N/A';
             let econPixMonthlyVal = 'N/A';
-            if (pixDiff !== 'N/A') {
-                econPixPercentVal = pixDiff;
-                econPixMonthlyVal = (tpvPix * (pixDiff / 100));
-                econPixPercent.textContent = `${econPixPercentVal}%`;
+            if (currentPixCetVal !== 'N/A') {
+                costPixCurrentVal = (tpvPix * currentPixCetVal) / 100;
+                costPixAthosVal = (tpvPix * athosPixCet) / 100;
+                econPixMonthlyVal = costPixCurrentVal - costPixAthosVal;
+                
+                costPixCurrent.textContent = formatCurrency(costPixCurrentVal);
+                costPixAthos.textContent = formatCurrency(costPixAthosVal);
                 econPixMonthly.textContent = formatCurrency(econPixMonthlyVal);
             } else {
-                econPixPercent.textContent = 'N/A';
+                costPixCurrent.textContent = 'N/A';
+                costPixAthos.textContent = 'N/A';
                 econPixMonthly.textContent = 'N/A';
             }
 
-            let econDebitPercentVal = 'N/A';
+            let costDebitCurrentVal = 'N/A';
+            let costDebitAthosVal = 'N/A';
             let econDebitMonthlyVal = 'N/A';
-            if (debitDiff !== 'N/A') {
-                econDebitPercentVal = debitDiff;
-                econDebitMonthlyVal = (tpvDebit * (debitDiff / 100));
-                econDebitPercent.textContent = `${econDebitPercentVal}%`;
+            if (currentDebitCetVal !== 'N/A') {
+                costDebitCurrentVal = (tpvDebit * currentDebitCetVal) / 100;
+                costDebitAthosVal = (tpvDebit * athosDebitCet) / 100;
+                econDebitMonthlyVal = costDebitCurrentVal - costDebitAthosVal;
+
+                costDebitCurrent.textContent = formatCurrency(costDebitCurrentVal);
+                costDebitAthos.textContent = formatCurrency(costDebitAthosVal);
                 econDebitMonthly.textContent = formatCurrency(econDebitMonthlyVal);
             } else {
-                econDebitPercent.textContent = 'N/A';
+                costDebitCurrent.textContent = 'N/A';
+                costDebitAthos.textContent = 'N/A';
                 econDebitMonthly.textContent = 'N/A';
             }
 
-            let econCreditPercentVal = 'N/A';
+            let costCreditCurrentVal = 'N/A';
+            let costCreditAthosVal = 'N/A';
             let econCreditMonthlyVal = 'N/A';
-            if (creditDiff !== 'N/A') {
-                econCreditPercentVal = creditDiff;
-                econCreditMonthlyVal = (tpvCredit * (creditDiff / 100));
-                econCreditPercent.textContent = `${econCreditPercentVal}%`;
+            if (currentCreditCetVal !== 'N/A') {
+                costCreditCurrentVal = (tpvCredit * currentCreditCetVal) / 100;
+                costCreditAthosVal = (tpvCredit * athosCreditCet) / 100;
+                econCreditMonthlyVal = costCreditCurrentVal - costCreditAthosVal;
+
+                costCreditCurrent.textContent = formatCurrency(costCreditCurrentVal);
+                costCreditAthos.textContent = formatCurrency(costCreditAthosVal);
                 econCreditMonthly.textContent = formatCurrency(econCreditMonthlyVal);
             } else {
-                econCreditPercent.textContent = 'N/A';
+                costCreditCurrent.textContent = 'N/A';
+                costCreditAthos.textContent = 'N/A';
                 econCreditMonthly.textContent = 'N/A';
             }
             
