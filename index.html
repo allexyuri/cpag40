@@ -396,7 +396,8 @@
                 </section>
 
                 <section class="bg-white p-6 rounded-xl shadow-md mb-8">
-                    <h2 class="text-xl font-bold mb-4">ATHOS PAY</h2>
+                    <h2 class="text-xl font-bold mb-4">ATHOS PAY (<span id="athos-pay-current-plan-display">CPAG 40</span>)</h2>
+                    <!-- O seletor de plano para Athos Pay foi removido daqui, pois já é controlado pelo cabeçalho -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -407,31 +408,8 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">C.E.T. (CUSTO EFETIVO TOTAL)</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0,99%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,99%</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,05%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3,05%</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito 1x antecipado</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3,27%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">6,27%</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="athos-custo-operacional-display">R$ 89,90</td>
-                                </tr>
+                            <tbody class="bg-white divide-y divide-gray-200" id="athos-pay-rates-table-body">
+                                <!-- Conteúdo preenchido via JavaScript -->
                             </tbody>
                         </table>
                     </div>
@@ -453,19 +431,19 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-pix-current-cet">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">2,99%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50" id="comp-pix-athos-cet">N/A</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="comp-pix-diff">N/A</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-debit-current-cet">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">3,05%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50" id="comp-debit-athos-cet">N/A</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="comp-debit-diff">N/A</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-red-50" id="comp-credit-current-cet">N/A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50">6,27%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-orange-50" id="comp-credit-athos-cet">N/A</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" id="comp-credit-diff">N/A</td>
                                 </tr>
                             </tbody>
@@ -634,7 +612,7 @@
             },
             "CPAG 34": {
                 "PIX/Visa": [
-                    { "display": "Crédito à vista", "forma": "Crédito à vista", "taxa": 0.99, "servico": 2, "cet": 2.99 },
+                    { "display": "PIX", "forma": "PIX", "taxa": 0.99, "servico": 2, "cet": 2.99 }, // Alterado "forma" para "PIX"
                     { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
                     { "display": "Parcelado 1x", "forma": "Parcelado 1x", "taxa": 3.27, "servico": 2, "cet": 5.27 },
                     { "display": "Parcelado 2x", "forma": "Parcelado 2x", "taxa": 4.86, "servico": 2, "cet": 6.86 },
@@ -840,7 +818,7 @@
         const tpvCreditInput = document.getElementById('tpv-credit');
         // NOVO: Elementos para o custo operacional
         const custoOperacionalInput = document.getElementById('custo-operacional-input');
-        const athosCustoOperacionalDisplay = document.getElementById('athos-custo-operacional-display');
+        // REMOVIDO: const athosCustoOperacionalDisplay = document.getElementById('athos-custo-operacional-display');
         const athosCustoOperacionalDisplayTable = document.getElementById('athos-custo-operacional-display-table');
         const econCustoOperacionalMonthly = document.getElementById('econ-custo-operacional-monthly');
 
@@ -849,6 +827,13 @@
         const econCreditMonthly = document.getElementById('econ-credit-monthly');
         const econTotalMonthly = document.getElementById('econ-total-monthly');
         const econTotalAnnual = document.getElementById('econ-total-annual');
+
+        // NOVOS ELEMENTOS PARA O PLANO ATHOS PAY SELECIONÁVEL (ajustado)
+        const athosPayRatesTableBody = document.getElementById('athos-pay-rates-table-body');
+        const athosPayCurrentPlanDisplay = document.getElementById('athos-pay-current-plan-display'); // Para exibir o nome do plano Athos Pay
+        const compPixAthosCet = document.getElementById('comp-pix-athos-cet');
+        const compDebitAthosCet = document.getElementById('comp-debit-athos-cet');
+        const compCreditAthosCet = document.getElementById('comp-credit-athos-cet');
 
 
         /**
@@ -957,7 +942,8 @@
                 displaySavedCustomProfiles();
                 updateParceladoInputsVisibility();
             } else if (pageId === 'athos-summary-page') {
-                populateAllProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value); // Use populateAllProfileSelect here
+                // Para a Máquina Atual, apenas perfis personalizados
+                populateCustomProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value); 
                 updateAthosSummaryPage();
             }
         }
@@ -983,7 +969,7 @@
          * Função principal para inicializar e atualizar a aplicação.
          */
         function updateApp() {
-            // Preenche o dropdown de seleção de plano
+            // Preenche o dropdown de seleção de plano principal (no cabeçalho)
             planSelect.innerHTML = '';
             Object.keys(allRates).forEach(planName => {
                 const option = document.createElement('option');
@@ -993,9 +979,9 @@
             });
             planSelect.value = currentPlan; // Define o plano atual
 
-            populateAllProfileSelect(profileSelect1, currentSelectedBrand);
-            populateCustomProfileSelect(profileSelect2, profileSelect2.value);
-            populateAllProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value); // Ensure Athos summary select is also updated
+            populateAllProfileSelect(profileSelect1, currentSelectedBrand); // Calculadora 1
+            populateCustomProfileSelect(profileSelect2, profileSelect2.value); // Calculadora 2 (apenas perfis personalizados)
+            // athosSummaryProfileSelect é populado dentro de showPage('athos-summary-page')
             showPage(currentPage);
         }
 
@@ -1010,19 +996,20 @@
 
         /**
          * Retorna os dados de um perfil de taxas (taxas e máximo de parcelas) para um plano específico.
-         * Pode ser um perfil pré-definido ou um perfil personalizado.
-         * @param {string} planName - O nome do plano (ex: "CPAG 40", "CPAG 34").
+         * Pode ser um perfil pré-definido (CPAG 40, CPAG 34) ou um perfil personalizado.
+         * @param {string} planKey - A chave do plano (ex: "CPAG 40", "CPAG 34").
          * @param {string} profileName - O nome do perfil (ex: "PIX/Visa", "Meu Perfil").
          * @returns {{data: Array, max_parcelas: number}} Os dados do perfil e o número máximo de parcelas.
          */
-        function getProfileData(planName, profileName) {
+        function getProfileData(planKey, profileName) {
             let data = [];
             let maxParcelas = 18;
 
-            if (allRates[planName] && allRates[planName][profileName]) {
-                // If taxa and servico are already defined in allRates, just return the item.
-                // This assumes allRates will now have pre-calculated taxa and servico for CPAG 34.
-                data = allRates[planName][profileName];
+            if (allRates[planKey] && allRates[planKey][profileName]) {
+                // Se for um perfil pré-definido (bandeira específica de um plano Athos Pay)
+                data = allRates[planKey][profileName];
+                // Para perfis pré-definidos, o max_parcelas é sempre 18 (ou o que estiver definido nos dados)
+                // A estrutura de allRates não tem um max_parcelas direto, então mantemos 18 como padrão.
             } else if (customProfiles[profileName]) { // Perfil personalizado
                 const profile = customProfiles[profileName];
                 maxParcelas = profile.max_parcelas;
@@ -1082,8 +1069,8 @@
             const profile2Name = profileSelect2.value;
 
             // Passa o plano atual para getProfileData
-            const profile1Result = getProfileData(currentPlan, profile1Name);
-            const profile2Result = getProfileData(currentPlan, profile2Name);
+            const profile1Result = getProfileData(currentPlan, profile1Name); // profile1 pode ser CPAG40/34 ou personalizado
+            const profile2Result = getProfileData(currentPlan, profile2Name); // profile2 deve ser personalizado
 
             const profile1Data = profile1Result.data;
             const profile1MaxParcelas = profile1Result.max_parcelas;
@@ -1439,15 +1426,25 @@
 
             // Verifica se o nome já existe em perfis pré-definidos ou personalizados
             if (editingProfileName && editingProfileName !== name) {
-                if ((allRates["CPAG 40"] && allRates["CPAG 40"][name]) || (allRates["CPAG 34"] && allRates["CPAG 34"][name]) || customProfiles[name]) {
+                // Ao editar, verifica se o NOVO nome já existe em allRates ou customProfiles (exceto o próprio perfil que está sendo editado)
+                const isNameTaken = (allRates["CPAG 40"] && allRates["CPAG 40"][name]) || 
+                                    (allRates["CPAG 34"] && allRates["CPAG 34"][name]) || 
+                                    (customProfiles[name] && name !== editingProfileName);
+                if (isNameTaken) {
                     showCustomModal('Já existe um perfil com este novo nome. Por favor, escolha um nome diferente.');
                     return;
                 }
                 // Se o nome foi alterado, remove o perfil antigo do objeto local e do localStorage
                 delete customProfiles[editingProfileName];
-            } else if (!editingProfileName && ((allRates["CPAG 40"] && allRates["CPAG 40"][name]) || (allRates["CPAG 34"] && allRates["CPAG 34"][name]) || customProfiles[name])) {
-                showCustomModal('Já existe um perfil com este nome. Por favor, escolha um nome diferente.');
-                return;
+            } else if (!editingProfileName) {
+                // Ao adicionar um novo perfil, verifica se o nome já existe em allRates ou customProfiles
+                const isNameTaken = (allRates["CPAG 40"] && allRates["CPAG 40"][name]) || 
+                                    (allRates["CPAG 34"] && allRates["CPAG 34"][name]) || 
+                                    customProfiles[name];
+                if (isNameTaken) {
+                    showCustomModal('Já existe um perfil com este nome. Por favor, escolha um nome diferente.');
+                    return;
+                }
             }
 
             try {
@@ -1474,7 +1471,7 @@
                 customMaxParcelasInput.value = '18';
 
                 editingProfileName = null;
-                addCustomProfileButton.textContent = 'Adicionar Perfil Personalizado';
+                addCustomProfileButton.textContent = 'Salvar Alterações';
 
                 addProfileFeedback.classList.remove('hidden');
                 setTimeout(() => {
@@ -1507,7 +1504,7 @@
                 document.getElementById('custom-rate-debit').value = profile.taxa_debit;
                 customMaxParcelasInput.value = profile.max_parcelas;
 
-                for (let i = 1; i => 18; i++) {
+                for (let i = 1; i <= 18; i++) {
                     const input = document.getElementById(`custom-rate-parcelado-${i}x`);
                     if (input) {
                         input.value = profile.parceladoRates[i - 1] !== undefined ? profile.parceladoRates[i - 1] : '';
@@ -1647,8 +1644,8 @@
             }
 
             // Passa o plano atual para getProfileData
-            const profile1Result = getProfileData(currentPlan, profile1Name);
-            const profile2Result = getProfileData(currentPlan, profile2Name);
+            const profile1Result = getProfileData(currentPlan, profile1Name); // Pode ser um plano Athos Pay ou perfil personalizado
+            const profile2Result = getProfileData(currentPlan, profile2Name); // Deve ser um perfil personalizado
 
             const profile1Data = profile1Result.data;
             const profile2Data = profile2Result.data;
@@ -1778,13 +1775,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${servico2.toFixed(2)}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${cet2.toFixed(2)}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-green-100">${formatCurrency(net2)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
-                            ${economyValue !== 0 ? formatCurrency(Math.abs(economyValue)) : 'N/A'}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
-                            ${economyValue !== 0 ? economyPercentage.toFixed(2) + '%' : 'N/A'}
-                        </td>
-                    `;
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                        ${economyValue !== 0 ? formatCurrency(Math.abs(economyValue)) : 'N/A'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${economyValue > 0 ? 'text-green-600' : (economyValue < 0 ? 'text-red-600' : 'text-gray-500')}">
+                        ${economyValue !== 0 ? economyPercentage.toFixed(2) + '%' : 'N/A'}
+                    </td>
+                `;
                     comparisonTableBody.appendChild(installmentRow);
                 }
             }
@@ -1795,13 +1792,55 @@
          */
         function updateAthosSummaryPage() {
             const selectedProfileName = athosSummaryProfileSelect.value;
-            // Passa o plano atual para getProfileData
-            const currentProfileData = getProfileData(currentPlan, selectedProfileName).data;
+            // A "Máquina Atual" é sempre um perfil personalizado
+            const currentProfileData = customProfiles[selectedProfileName] ? getProfileData(null, selectedProfileName).data : [];
 
-            // Taxas fixas do Athos Pay (que correspondem ao CPAG 34)
-            const athosPixCet = 2.99; 
-            const athosDebitCet = 3.05; 
-            const athosCreditCet = 6.27; 
+            // O plano Athos Pay é o que está selecionado no cabeçalho (currentPlan)
+            const athosPayPlanData = allRates[currentPlan] ? allRates[currentPlan]["PIX/Visa"] : []; // Usamos PIX/Visa como base para Athos Pay
+
+            // Atualiza o display do nome do plano Athos Pay
+            athosPayCurrentPlanDisplay.textContent = currentPlan;
+
+            // Preenche a tabela "ATHOS PAY"
+            athosPayRatesTableBody.innerHTML = '';
+            if (athosPayPlanData.length > 0) {
+                const athosPix = athosPayPlanData.find(d => d.forma === 'PIX');
+                const athosDebit = athosPayPlanData.find(d => d.forma === 'Débito');
+                const athosCredit1x = athosPayPlanData.find(d => d.forma === 'Parcelado 1x');
+                const custoOperacional = parseFloat(custoOperacionalInput.value) || 0; // Obtém o valor aqui
+
+                athosPayRatesTableBody.innerHTML = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PIX</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosPix ? athosPix.taxa.toFixed(2) + '%' : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosPix ? athosPix.servico.toFixed(2) + '%' : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosPix ? athosPix.cet.toFixed(2) + '%' : 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Débito</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosDebit ? athosDebit.taxa.toFixed(2) + '%' : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosDebit ? athosDebit.servico.toFixed(2) + '%' : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosDebit ? athosDebit.cet.toFixed(2) + '%' : 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Crédito 1x antecipado</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosCredit1x ? athosCredit1x.taxa.toFixed(2) + '%' : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosCredit1x ? athosCredit1x.servico.toFixed(2) + '%' : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${athosCredit1x ? athosCredit1x.cet.toFixed(2) + '%' : 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Operacional</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(custoOperacional)}</td>
+                    </tr>
+                `;
+            } else {
+                athosPayRatesTableBody.innerHTML = `
+                    <tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Nenhum dado de plano Athos Pay disponível para ${currentPlan}.</td></tr>
+                `;
+            }
+
             const custoOperacional = parseFloat(custoOperacionalInput.value) || 0; 
 
             let currentPixCetVal = 'N/A';
@@ -1816,7 +1855,7 @@
             let currentCreditBandeiraVal = 'N/A';
             let currentCreditAliquotaVal = 'N/A';
 
-            // Encontra os dados de PIX no perfil selecionado
+            // Encontra os dados de PIX no perfil selecionado (Máquina Atual)
             const pixData = currentProfileData.find(d => d.forma === 'PIX');
             if (pixData) {
                 currentPixCetVal = pixData.cet;
@@ -1824,7 +1863,7 @@
                 currentPixAliquotaVal = pixData.servico;
             }
 
-            // Encontra os dados de Débito no perfil selecionado
+            // Encontra os dados de Débito no perfil selecionado (Máquina Atual)
             const debitData = currentProfileData.find(d => d.forma === 'Débito');
             if (debitData) {
                 currentDebitCetVal = debitData.cet;
@@ -1832,7 +1871,7 @@
                 currentDebitAliquotaVal = debitData.servico;
             }
 
-            // Encontra os dados de Crédito 1x antecipado no perfil selecionado
+            // Encontra os dados de Crédito 1x antecipado no perfil selecionado (Máquina Atual)
             const credit1xData = currentProfileData.find(d => d.forma === 'Parcelado 1x');
             if (credit1xData) {
                 currentCreditCetVal = credit1xData.cet;
@@ -1853,13 +1892,22 @@
             currentCreditAliquota.textContent = currentCreditAliquotaVal !== 'N/A' ? `${currentCreditAliquotaVal.toFixed(2)}%` : 'N/A';
             currentCreditCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
 
+            // Obtém os CETs do plano Athos Pay selecionado no cabeçalho
+            const athosPixCet = athosPayPlanData.find(d => d.forma === 'PIX')?.cet || 0;
+            const athosDebitCet = athosPayPlanData.find(d => d.forma === 'Débito')?.cet || 0;
+            const athosCreditCet = athosPayPlanData.find(d => d.forma === 'Parcelado 1x')?.cet || 0;
+
             // Atualiza a tabela "COMPARATIVO C.E.T."
             compPixCurrentCet.textContent = currentPixCetVal !== 'N/A' ? `${currentPixCetVal.toFixed(2)}%` : 'N/A';
             compDebitCurrentCet.textContent = currentDebitCetVal !== 'N/A' ? `${currentDebitCetVal.toFixed(2)}%` : 'N/A';
             compCreditCurrentCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
 
+            compPixAthosCet.textContent = athosPixCet !== 0 ? `${athosPixCet.toFixed(2)}%` : 'N/A';
+            compDebitAthosCet.textContent = athosDebitCet !== 0 ? `${athosDebitCet.toFixed(2)}%` : 'N/A';
+            compCreditAthosCet.textContent = athosCreditCet !== 0 ? `${athosCreditCet.toFixed(2)}%` : 'N/A';
+
             let pixDiff = 'N/A';
-            if (currentPixCetVal !== 'N/A') {
+            if (currentPixCetVal !== 'N/A' && athosPixCet !== 0) {
                 pixDiff = (currentPixCetVal - athosPixCet).toFixed(2);
                 compPixDiff.textContent = `${pixDiff}%`;
             } else {
@@ -1867,7 +1915,7 @@
             }
 
             let debitDiff = 'N/A';
-            if (currentDebitCetVal !== 'N/A') {
+            if (currentDebitCetVal !== 'N/A' && athosDebitCet !== 0) {
                 debitDiff = (currentDebitCetVal - athosDebitCet).toFixed(2);
                 compDebitDiff.textContent = `${debitDiff}%`;
             } else {
@@ -1875,7 +1923,7 @@
             }
 
             let creditDiff = 'N/A';
-            if (currentCreditCetVal !== 'N/A') {
+            if (currentCreditCetVal !== 'N/A' && athosCreditCet !== 0) {
                 creditDiff = (currentCreditCetVal - athosCreditCet).toFixed(2);
                 compCreditDiff.textContent = `${creditDiff}%`;
             } else {
@@ -1894,7 +1942,7 @@
             let costPixCurrentVal = 'N/A';
             let costPixAthosVal = 'N/A';
             let econPixMonthlyVal = 'N/A';
-            if (currentPixCetVal !== 'N/A') {
+            if (currentPixCetVal !== 'N/A' && athosPixCet !== 0) {
                 costPixCurrentVal = (tpvPix * currentPixCetVal) / 100;
                 costPixAthosVal = (tpvPix * athosPixCet) / 100;
                 econPixMonthlyVal = costPixCurrentVal - costPixAthosVal;
@@ -1911,7 +1959,7 @@
             let costDebitCurrentVal = 'N/A';
             let costDebitAthosVal = 'N/A';
             let econDebitMonthlyVal = 'N/A';
-            if (currentDebitCetVal !== 'N/A') {
+            if (currentDebitCetVal !== 'N/A' && athosDebitCet !== 0) {
                 costDebitCurrentVal = (tpvDebit * currentDebitCetVal) / 100;
                 costDebitAthosVal = (tpvDebit * athosDebitCet) / 100;
                 econDebitMonthlyVal = costDebitCurrentVal - costDebitAthosVal;
@@ -1928,7 +1976,7 @@
             let costCreditCurrentVal = 'N/A';
             let costCreditAthosVal = 'N/A';
             let econCreditMonthlyVal = 'N/A';
-            if (currentCreditCetVal !== 'N/A') {
+            if (currentCreditCetVal !== 'N/A' && athosCreditCet !== 0) {
                 costCreditCurrentVal = (tpvCredit * currentCreditCetVal) / 100;
                 costCreditAthosVal = (tpvCredit * athosCreditCet) / 100;
                 econCreditMonthlyVal = costCreditCurrentVal - costCreditAthosVal;
@@ -1949,7 +1997,7 @@
             totalMonthlyProfit -= custoOperacional;
 
             // Atualiza o display do custo operacional na tabela "ATHOS PAY"
-            athosCustoOperacionalDisplay.textContent = formatCurrency(custoOperacional);
+            // REMOVIDO: athosCustoOperacionalDisplay.textContent = formatCurrency(custoOperacional);
             athosCustoOperacionalDisplayTable.textContent = formatCurrency(custoOperacional);
             econCustoOperacionalMonthly.textContent = formatCurrency(-custoOperacional);
 
@@ -1980,14 +2028,14 @@
             tpvDebitInput.addEventListener('input', updateAthosSummaryPage);
             tpvCreditInput.addEventListener('input', updateAthosSummaryPage);
             custoOperacionalInput.addEventListener('input', updateAthosSummaryPage); // NOVO: Listener para o custo operacional
-
-            // Listener para a seleção do plano
+            // Listener para a mudança do plano no cabeçalho (afeta a seção Athos Pay do resumo)
             planSelect.addEventListener('change', () => {
                 currentPlan = planSelect.value;
                 // Redefine a bandeira selecionada para a primeira bandeira do novo plano
                 currentSelectedBrand = Object.keys(allRates[currentPlan])[0];
-                updateApp();
+                updateApp(); // Isso irá chamar showPage e, por sua vez, updateAthosSummaryPage
             });
+
 
             // Outros listeners de eventos
             addCustomProfileButton.addEventListener('click', addCustomProfile);
