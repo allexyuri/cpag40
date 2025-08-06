@@ -150,7 +150,11 @@
         <div class="container mx-auto max-w-screen-xl flex items-center justify-between">
             <div class="flex items-center">
                 <img src="logocolorida.svg" alt="Logo da Empresa" class="h-10 w-auto rounded-md mr-4">
-                <span class="font-bold text-lg text-gray-900 whitespace-nowrap">CPAG 40</span>
+                <!-- Dropdown para seleção do plano -->
+                <select id="plan-select" class="font-bold text-lg text-gray-900 bg-white border border-gray-300 rounded-md py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="CPAG 40">CPAG 40</option>
+                    <option value="CPAG 34">CPAG 34</option>
+                </select>
             </div>
             
             <!-- Hamburger Menu Icon for Mobile -->
@@ -564,67 +568,195 @@
     <script>
         // customProfiles agora é apenas um objeto local.
         let customProfiles = {}; 
-        let currentBrand = "PIX/Visa"; // Marca principal selecionada pelos botões de navegação
+        let currentPlan = "CPAG 40"; // Variável para armazenar o plano selecionado (CPAG 40 ou CPAG 34)
+        let currentSelectedBrand = "PIX/Visa"; // Marca principal selecionada pelos botões de navegação
         let chartInstance = null; // Instância do Chart.js
         let currentPage = 'custom-profile-page'; // Página inicial padrão
         let editingProfileName = null; // Variável para controlar qual perfil está sendo editado
 
-        // Define as taxas pré-definidas para diferentes bandeiras
+        // Define as taxas pré-definidas para diferentes planos e bandeiras
         const allRates = {
-            "PIX/Visa": [
-                { "display": "PIX", "forma": "PIX", "taxa": 0.99, "servico": 2, "cet": 2.99 },
-                { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
-                { "display": "Crédito 1x", "forma": "Parcelado 1x", "taxa": 3.27, "servico": 3, "cet": 6.27 }, // Adicionado para corresponder à imagem
-                ...Array.from({ length: 18 }, (_, i) => {
+            "CPAG 40": {
+                "PIX/Visa": [
+                    { "display": "PIX", "forma": "PIX", "taxa": 0.99, "servico": 2, "cet": 2.99 },
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
+                    { "display": "Crédito 1x", "forma": "Parcelado 1x", "taxa": 3.27, "servico": 3, "cet": 6.27 }, // Adicionado para corresponder à imagem
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        const cetMap = { 1: 6.27, 2: 8.02, 3: 9.47, 4: 10.91, 5: 12.36, 6: 13.80, 7: 15.61, 8: 17.05, 9: 18.49, 10: 19.92, 11: 21.36, 12: 22.80, 13: 25.24, 14: 26.66, 15: 28.08, 16: 29.50, 17: 30.91, 18: 32.33 };
+                        const cet = cetMap[parcelas];
+                        // Certifica-se de que a taxa de serviço seja 3 para parcelados
+                        const servico = 3; 
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
+                    })
+                ],
+                "Mastercard": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.39, "servico": 2, "cet": 3.39 },
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        const cetMap = { 1: 6.49, 2: 8.89, 3: 10.29, 4: 11.67, 5: 13.07, 6: 14.44, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                        const cet = cetMap[parcelas];
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                    })
+                ],
+                "Elo": Array.from({ length: 18 }, (_, i) => {
                     const parcelas = i + 1;
-                    const cetMap = { 1: 6.27, 2: 8.02, 3: 9.47, 4: 10.91, 5: 12.36, 6: 13.80, 7: 15.61, 8: 17.05, 9: 18.49, 10: 19.92, 11: 21.36, 12: 22.80, 13: 25.24, 14: 26.66, 15: 28.08, 16: 29.50, 17: 30.91, 18: 32.33 };
-                    const cet = cetMap[parcelas];
-                    // Certifica-se de que a taxa de serviço seja 3 para parcelados
-                    const servico = 3; 
-                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
-                })
-            ],
-            "Mastercard": [
-                { "display": "Débito", "forma": "Débito", "taxa": 1.39, "servico": 2, "cet": 3.39 },
-                ...Array.from({ length: 18 }, (_, i) => {
-                    const parcelas = i + 1;
-                    const cetMap = { 1: 6.49, 2: 8.89, 3: 10.29, 4: 11.67, 5: 13.07, 6: 14.44, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                    const cetMap = { 1: 6.49, 2: 8.68, 3: 10.12, 4: 11.67, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
                     const cet = cetMap[parcelas];
                     return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
-                })
-            ],
-            "Elo": Array.from({ length: 18 }, (_, i) => {
-                const parcelas = i + 1;
-                const cetMap = { 1: 6.49, 2: 8.68, 3: 10.12, 4: 11.67, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
-                const cet = cetMap[parcelas];
-                return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
-            }),
-            "Hipercard": Array.from({ length: 18 }, (_, i) => {
-                const parcelas = i + 1;
-                const cetMap = { 1: 6.72, 2: 8.90, 3: 10.29, 4: 11.68, 5: 13.07, 6: 14.44, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
-                const cet = cetMap[parcelas];
-                return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
-            }),
-            "Amex": [
-                { "display": "Débito", "forma": "Débito", "taxa": 6.00, "servico": 2, "cet": 8.00 },
-                ...Array.from({ length: 18 }, (_, i) => {
+                }),
+                "Hipercard": Array.from({ length: 18 }, (_, i) => {
                     const parcelas = i + 1;
-                    const cetMap = { 1: 8.17, 2: 9.04, 3: 10.12, 4: 11.55, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                    const cetMap = { 1: 6.72, 2: 8.90, 3: 10.29, 4: 11.68, 5: 13.07, 6: 14.44, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
                     const cet = cetMap[parcelas];
-                    const servico = 3;
-                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
-                })
-            ],
-            "Cabal": [
-                ...Array.from({ length: 18 }, (_, i) => {
-                    const parcelas = i + 1;
-                    if (parcelas < 3) return null;
-                    const cetMap = { 3: 10.12, 4: 11.55, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
-                    const cet = cetMap[parcelas];
-                    const servico = 3;
-                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
-                }).filter(Boolean)
-            ]
+                    return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - 3).toFixed(2)), "servico": 3, "cet": cet };
+                }),
+                "Amex": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 6.00, "servico": 2, "cet": 8.00 },
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        const cetMap = { 1: 8.17, 2: 9.04, 3: 10.12, 4: 11.55, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                        const cet = cetMap[parcelas];
+                        const servico = 3;
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
+                    })
+                ],
+                "Cabal": [
+                    ...Array.from({ length: 18 }, (_, i) => {
+                        const parcelas = i + 1;
+                        if (parcelas < 3) return null;
+                        const cetMap = { 3: 10.12, 4: 11.55, 5: 12.99, 6: 14.42, 7: 16.35, 8: 17.77, 9: 19.20, 10: 20.62, 11: 22.05, 12: 23.48, 13: 25.88, 14: 27.28, 15: 28.69, 16: 30.09, 17: 31.50, 18: 32.90 };
+                        const cet = cetMap[parcelas];
+                        const servico = 3;
+                        return { "display": `Parcelado ${parcelas}x`, "forma": `Parcelado ${parcelas}x`, "taxa": parseFloat((cet - servico).toFixed(2)), "servico": servico, "cet": cet };
+                    }).filter(Boolean)
+                ]
+            },
+            "CPAG 34": {
+                "PIX/Visa": [
+                    { "display": "Crédito à vista", "forma": "Crédito à vista", "taxa": 0.99, "servico": 2, "cet": 2.99 },
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
+                    { "display": "Parcelado 1x", "forma": "Parcelado 1x", "taxa": 3.27, "servico": 2, "cet": 5.27 },
+                    { "display": "Parcelado 2x", "forma": "Parcelado 2x", "taxa": 4.86, "servico": 2, "cet": 6.86 },
+                    { "display": "Parcelado 3x", "forma": "Parcelado 3x", "taxa": 5.81, "servico": 2, "cet": 7.81 },
+                    { "display": "Parcelado 4x", "forma": "Parcelado 4x", "taxa": 6.77, "servico": 2, "cet": 8.77 },
+                    { "display": "Parcelado 5x", "forma": "Parcelado 5x", "taxa": 7.72, "servico": 2, "cet": 9.72 },
+                    { "display": "Parcelado 6x", "forma": "Parcelado 6x", "taxa": 8.68, "servico": 2, "cet": 10.68 },
+                    { "display": "Parcelado 7x", "forma": "Parcelado 7x", "taxa": 10.10, "servico": 2, "cet": 12.10 },
+                    { "display": "Parcelado 8x", "forma": "Parcelado 8x", "taxa": 11.05, "servico": 2, "cet": 13.05 },
+                    { "display": "Parcelado 9x", "forma": "Parcelado 9x", "taxa": 12.00, "servico": 2, "cet": 14.00 },
+                    { "display": "Parcelado 10x", "forma": "Parcelado 10x", "taxa": 12.95, "servico": 2, "cet": 14.95 },
+                    { "display": "Parcelado 11x", "forma": "Parcelado 11x", "taxa": 13.90, "servico": 2, "cet": 15.90 },
+                    { "display": "Parcelado 12x", "forma": "Parcelado 12x", "taxa": 14.85, "servico": 2, "cet": 16.85 },
+                    { "display": "Parcelado 13x", "forma": "Parcelado 13x", "taxa": 17.84, "servico": 2, "cet": 19.84 },
+                    { "display": "Parcelado 14x", "forma": "Parcelado 14x", "taxa": 18.87, "servico": 2, "cet": 20.87 },
+                    { "display": "Parcelado 15x", "forma": "Parcelado 15x", "taxa": 19.90, "servico": 2, "cet": 21.90 },
+                    { "display": "Parcelado 16x", "forma": "Parcelado 16x", "taxa": 20.93, "servico": 2, "cet": 22.93 },
+                    { "display": "Parcelado 17x", "forma": "Parcelado 17x", "taxa": 21.96, "servico": 2, "cet": 23.96 },
+                    { "display": "Parcelado 18x", "forma": "Parcelado 18x", "taxa": 22.99, "servico": 2, "cet": 24.99 }
+                ],
+                "Mastercard": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.05, "servico": 2, "cet": 3.05 },
+                    { "display": "Parcelado 1x", "forma": "Parcelado 1x", "taxa": 3.27, "servico": 2, "cet": 5.27 },
+                    { "display": "Parcelado 2x", "forma": "Parcelado 2x", "taxa": 4.86, "servico": 2, "cet": 6.86 },
+                    { "display": "Parcelado 3x", "forma": "Parcelado 3x", "taxa": 5.81, "servico": 2, "cet": 7.81 },
+                    { "display": "Parcelado 4x", "forma": "Parcelado 4x", "taxa": 6.77, "servico": 2, "cet": 8.77 },
+                    { "display": "Parcelado 5x", "forma": "Parcelado 5x", "taxa": 7.72, "servico": 2, "cet": 9.72 },
+                    { "display": "Parcelado 6x", "forma": "Parcelado 6x", "taxa": 8.68, "servico": 2, "cet": 10.68 },
+                    { "display": "Parcelado 7x", "forma": "Parcelado 7x", "taxa": 10.10, "servico": 2, "cet": 12.10 },
+                    { "display": "Parcelado 8x", "forma": "Parcelado 8x", "taxa": 11.05, "servico": 2, "cet": 13.05 },
+                    { "display": "Parcelado 9x", "forma": "Parcelado 9x", "taxa": 12.00, "servico": 2, "cet": 14.00 },
+                    { "display": "Parcelado 10x", "forma": "Parcelado 10x", "taxa": 12.95, "servico": 2, "cet": 14.95 },
+                    { "display": "Parcelado 11x", "forma": "Parcelado 11x", "taxa": 13.90, "servico": 2, "cet": 15.90 },
+                    { "display": "Parcelado 12x", "forma": "Parcelado 12x", "taxa": 14.85, "servico": 2, "cet": 16.85 },
+                    { "display": "Parcelado 13x", "forma": "Parcelado 13x", "taxa": 17.84, "servico": 2, "cet": 19.84 },
+                    { "display": "Parcelado 14x", "forma": "Parcelado 14x", "taxa": 18.87, "servico": 2, "cet": 20.87 },
+                    { "display": "Parcelado 15x", "forma": "Parcelado 15x", "taxa": 19.90, "servico": 2, "cet": 21.90 },
+                    { "display": "Parcelado 16x", "forma": "Parcelado 16x", "taxa": 20.93, "servico": 2, "cet": 22.93 },
+                    { "display": "Parcelado 17x", "forma": "Parcelado 17x", "taxa": 21.96, "servico": 2, "cet": 23.96 },
+                    { "display": "Parcelado 18x", "forma": "Parcelado 18x", "taxa": 22.99, "servico": 2, "cet": 24.99 }
+                ],
+                "Elo": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 1.50, "servico": 2, "cet": 3.50 },
+                    { "display": "Parcelado 1x", "forma": "Parcelado 1x", "taxa": 4.02, "servico": 2, "cet": 6.02 },
+                    { "display": "Parcelado 2x", "forma": "Parcelado 2x", "taxa": 5.75, "servico": 2, "cet": 7.75 },
+                    { "display": "Parcelado 3x", "forma": "Parcelado 3x", "taxa": 6.66, "servico": 2, "cet": 8.66 },
+                    { "display": "Parcelado 4x", "forma": "Parcelado 4x", "taxa": 7.56, "servico": 2, "cet": 9.56 },
+                    { "display": "Parcelado 5x", "forma": "Parcelado 5x", "taxa": 8.47, "servico": 2, "cet": 10.47 },
+                    { "display": "Parcelado 6x", "forma": "Parcelado 6x", "taxa": 9.36, "servico": 2, "cet": 11.36 },
+                    { "display": "Parcelado 7x", "forma": "Parcelado 7x", "taxa": 11.12, "servico": 2, "cet": 13.12 },
+                    { "display": "Parcelado 8x", "forma": "Parcelado 8x", "taxa": 12.06, "servico": 2, "cet": 14.06 },
+                    { "display": "Parcelado 9x", "forma": "Parcelado 9x", "taxa": 12.00, "servico": 2, "cet": 14.00 }, // Note: 14.00% CET for 9x
+                    { "display": "Parcelado 10x", "forma": "Parcelado 10x", "taxa": 13.94, "servico": 2, "cet": 15.94 },
+                    { "display": "Parcelado 11x", "forma": "Parcelado 11x", "taxa": 14.88, "servico": 2, "cet": 16.88 },
+                    { "display": "Parcelado 12x", "forma": "Parcelado 12x", "taxa": 15.82, "servico": 2, "cet": 17.82 },
+                    { "display": "Parcelado 13x", "forma": "Parcelado 13x", "taxa": 17.28, "servico": 2, "cet": 19.28 },
+                    { "display": "Parcelado 14x", "forma": "Parcelado 14x", "taxa": 18.21, "servico": 2, "cet": 20.21 },
+                    { "display": "Parcelado 15x", "forma": "Parcelado 15x", "taxa": 19.15, "servico": 2, "cet": 21.15 },
+                    { "display": "Parcelado 16x", "forma": "Parcelado 16x", "taxa": 20.08, "servico": 2, "cet": 22.08 },
+                    { "display": "Parcelado 17x", "forma": "Parcelado 17x", "taxa": 21.01, "servico": 2, "cet": 23.01 },
+                    { "display": "Parcelado 18x", "forma": "Parcelado 18x", "taxa": 21.94, "servico": 2, "cet": 23.94 }
+                ],
+                "Hipercard": [
+                    { "display": "Parcelado 1x", "forma": "Parcelado 1x", "taxa": 4.02, "servico": 2, "cet": 6.02 },
+                    { "display": "Parcelado 2x", "forma": "Parcelado 2x", "taxa": 5.54, "servico": 2, "cet": 7.54 },
+                    { "display": "Parcelado 3x", "forma": "Parcelado 3x", "taxa": 6.49, "servico": 2, "cet": 8.49 },
+                    { "display": "Parcelado 4x", "forma": "Parcelado 4x", "taxa": 7.56, "servico": 2, "cet": 9.56 },
+                    { "display": "Parcelado 5x", "forma": "Parcelado 5x", "taxa": 8.39, "servico": 2, "cet": 10.39 },
+                    { "display": "Parcelado 6x", "forma": "Parcelado 6x", "taxa": 9.34, "servico": 2, "cet": 11.34 },
+                    { "display": "Parcelado 7x", "forma": "Parcelado 7x", "taxa": 11.12, "servico": 2, "cet": 13.12 },
+                    { "display": "Parcelado 8x", "forma": "Parcelado 8x", "taxa": 12.06, "servico": 2, "cet": 14.06 },
+                    { "display": "Parcelado 9x", "forma": "Parcelado 9x", "taxa": 13.00, "servico": 2, "cet": 15.00 },
+                    { "display": "Parcelado 10x", "forma": "Parcelado 10x", "taxa": 13.94, "servico": 2, "cet": 15.94 },
+                    { "display": "Parcelado 11x", "forma": "Parcelado 11x", "taxa": 14.88, "servico": 2, "cet": 16.88 },
+                    { "display": "Parcelado 12x", "forma": "Parcelado 12x", "taxa": 15.82, "servico": 2, "cet": 17.82 },
+                    { "display": "Parcelado 13x", "forma": "Parcelado 13x", "taxa": 17.28, "servico": 2, "cet": 19.28 },
+                    { "display": "Parcelado 14x", "forma": "Parcelado 14x", "taxa": 18.21, "servico": 2, "cet": 20.21 },
+                    { "display": "Parcelado 15x", "forma": "Parcelado 15x", "taxa": 19.15, "servico": 2, "cet": 21.15 },
+                    { "display": "Parcelado 16x", "forma": "Parcelado 16x", "taxa": 20.08, "servico": 2, "cet": 22.08 },
+                    { "display": "Parcelado 17x", "forma": "Parcelado 17x", "taxa": 21.01, "servico": 2, "cet": 23.01 },
+                    { "display": "Parcelado 18x", "forma": "Parcelado 18x", "taxa": 21.94, "servico": 2, "cet": 23.94 }
+                ],
+                "Amex": [
+                    { "display": "Débito", "forma": "Débito", "taxa": 6.00, "servico": 2, "cet": 8.00 },
+                    { "display": "Parcelado 1x", "forma": "Parcelado 1x", "taxa": 6.17, "servico": 2, "cet": 8.17 },
+                    { "display": "Parcelado 2x", "forma": "Parcelado 2x", "taxa": 7.04, "servico": 2, "cet": 9.04 },
+                    { "display": "Parcelado 3x", "forma": "Parcelado 3x", "taxa": 9.00, "servico": 2, "cet": 11.00 },
+                    { "display": "Parcelado 4x", "forma": "Parcelado 4x", "taxa": 10.00, "servico": 2, "cet": 12.00 },
+                    { "display": "Parcelado 5x", "forma": "Parcelado 5x", "taxa": 11.00, "servico": 2, "cet": 13.00 },
+                    { "display": "Parcelado 6x", "forma": "Parcelado 6x", "taxa": 12.00, "servico": 2, "cet": 14.00 },
+                    { "display": "Parcelado 7x", "forma": "Parcelado 7x", "taxa": 13.00, "servico": 2, "cet": 15.00 },
+                    { "display": "Parcelado 8x", "forma": "Parcelado 8x", "taxa": 14.00, "servico": 2, "cet": 16.00 },
+                    { "display": "Parcelado 9x", "forma": "Parcelado 9x", "taxa": 15.00, "servico": 2, "cet": 17.00 },
+                    { "display": "Parcelado 10x", "forma": "Parcelado 10x", "taxa": 16.00, "servico": 2, "cet": 18.00 },
+                    { "display": "Parcelado 11x", "forma": "Parcelado 11x", "taxa": 17.00, "servico": 2, "cet": 19.00 },
+                    { "display": "Parcelado 12x", "forma": "Parcelado 12x", "taxa": 18.00, "servico": 2, "cet": 20.00 },
+                    { "display": "Parcelado 13x", "forma": "Parcelado 13x", "taxa": 19.00, "servico": 2, "cet": 21.00 },
+                    { "display": "Parcelado 14x", "forma": "Parcelado 14x", "taxa": 20.00, "servico": 2, "cet": 22.00 },
+                    { "display": "Parcelado 15x", "forma": "Parcelado 15x", "taxa": 21.00, "servico": 2, "cet": 23.00 },
+                    { "display": "Parcelado 16x", "forma": "Parcelado 16x", "taxa": 22.00, "servico": 2, "cet": 24.00 },
+                    { "display": "Parcelado 17x", "forma": "Parcelado 17x", "taxa": 23.00, "servico": 2, "cet": 25.00 },
+                    { "display": "Parcelado 18x", "forma": "Parcelado 18x", "taxa": 24.00, "servico": 2, "cet": 26.00 }
+                ],
+                "Cabal": [
+                    { "display": "Parcelado 3x", "forma": "Parcelado 3x", "taxa": 9.00, "servico": 2, "cet": 11.00 },
+                    { "display": "Parcelado 4x", "forma": "Parcelado 4x", "taxa": 10.00, "servico": 2, "cet": 12.00 },
+                    { "display": "Parcelado 5x", "forma": "Parcelado 5x", "taxa": 11.00, "servico": 2, "cet": 13.00 },
+                    { "display": "Parcelado 6x", "forma": "Parcelado 6x", "taxa": 12.00, "servico": 2, "cet": 14.00 },
+                    { "display": "Parcelado 7x", "forma": "Parcelado 7x", "taxa": 13.00, "servico": 2, "cet": 15.00 },
+                    { "display": "Parcelado 8x", "forma": "Parcelado 8x", "taxa": 14.00, "servico": 2, "cet": 16.00 },
+                    { "display": "Parcelado 9x", "forma": "Parcelado 9x", "taxa": 15.00, "servico": 2, "cet": 17.00 },
+                    { "display": "Parcelado 10x", "forma": "Parcelado 10x", "taxa": 16.00, "servico": 2, "cet": 18.00 },
+                    { "display": "Parcelado 11x", "forma": "Parcelado 11x", "taxa": 17.00, "servico": 2, "cet": 19.00 },
+                    { "display": "Parcelado 12x", "forma": "Parcelado 12x", "taxa": 18.00, "servico": 2, "cet": 20.00 },
+                    { "display": "Parcelado 13x", "forma": "Parcelado 13x", "taxa": 19.00, "servico": 2, "cet": 21.00 },
+                    { "display": "Parcelado 14x", "forma": "Parcelado 14x", "taxa": 20.00, "servico": 2, "cet": 22.00 },
+                    { "display": "Parcelado 15x", "forma": "Parcelado 15x", "taxa": 21.00, "servico": 2, "cet": 23.00 },
+                    { "display": "Parcelado 16x", "forma": "Parcelado 16x", "taxa": 22.00, "servico": 2, "cet": 24.00 },
+                    { "display": "Parcelado 17x", "forma": "Parcelado 17x", "taxa": 23.00, "servico": 2, "cet": 25.00 },
+                    { "display": "Parcelado 18x", "forma": "Parcelado 18x", "taxa": 24.00, "servico": 2, "cet": 26.00 }
+                ].filter(Boolean)
+            }
         };
 
         // Elementos da Calculadora 1
@@ -667,6 +799,7 @@
         const toggleCustomProfileButton = document.getElementById('toggle-custom-profile');
         const customProfileContent = document.getElementById('custom-profile-content');
         const hamburgerIcon = document.getElementById('hamburger-icon'); // Re-adicionado
+        const planSelect = document.getElementById('plan-select'); // Novo elemento para seleção do plano
 
         // Elementos do Modal Personalizado
         const customModal = document.getElementById('custom-modal');
@@ -824,7 +957,7 @@
                 displaySavedCustomProfiles();
                 updateParceladoInputsVisibility();
             } else if (pageId === 'athos-summary-page') {
-                populateCustomProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value);
+                populateAllProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value); // Use populateAllProfileSelect here
                 updateAthosSummaryPage();
             }
         }
@@ -850,8 +983,19 @@
          * Função principal para inicializar e atualizar a aplicação.
          */
         function updateApp() {
-            populateAllProfileSelect(profileSelect1, profileSelect1.value || currentBrand);
+            // Preenche o dropdown de seleção de plano
+            planSelect.innerHTML = '';
+            Object.keys(allRates).forEach(planName => {
+                const option = document.createElement('option');
+                option.value = planName;
+                option.textContent = planName;
+                planSelect.appendChild(option);
+            });
+            planSelect.value = currentPlan; // Define o plano atual
+
+            populateAllProfileSelect(profileSelect1, currentSelectedBrand);
             populateCustomProfileSelect(profileSelect2, profileSelect2.value);
+            populateAllProfileSelect(athosSummaryProfileSelect, athosSummaryProfileSelect.value); // Ensure Athos summary select is also updated
             showPage(currentPage);
         }
 
@@ -865,18 +1009,21 @@
         }
 
         /**
-         * Retorna os dados de um perfil de taxas (taxas e máximo de parcelas).
+         * Retorna os dados de um perfil de taxas (taxas e máximo de parcelas) para um plano específico.
          * Pode ser um perfil pré-definido ou um perfil personalizado.
-         * @param {string} profileName - O nome do perfil.
+         * @param {string} planName - O nome do plano (ex: "CPAG 40", "CPAG 34").
+         * @param {string} profileName - O nome do perfil (ex: "PIX/Visa", "Meu Perfil").
          * @returns {{data: Array, max_parcelas: number}} Os dados do perfil e o número máximo de parcelas.
          */
-        function getProfileData(profileName) {
+        function getProfileData(planName, profileName) {
             let data = [];
             let maxParcelas = 18;
 
-            if (allRates[profileName]) {
-                data = allRates[profileName];
-            } else if (customProfiles[profileName]) {
+            if (allRates[planName] && allRates[planName][profileName]) {
+                // If taxa and servico are already defined in allRates, just return the item.
+                // This assumes allRates will now have pre-calculated taxa and servico for CPAG 34.
+                data = allRates[planName][profileName];
+            } else if (customProfiles[profileName]) { // Perfil personalizado
                 const profile = customProfiles[profileName];
                 maxParcelas = profile.max_parcelas;
                 const serviceRate = profile.service_rate;
@@ -934,8 +1081,9 @@
             const profile1Name = profileSelect1.value;
             const profile2Name = profileSelect2.value;
 
-            const profile1Result = getProfileData(profile1Name);
-            const profile2Result = getProfileData(profile2Name);
+            // Passa o plano atual para getProfileData
+            const profile1Result = getProfileData(currentPlan, profile1Name);
+            const profile2Result = getProfileData(currentPlan, profile2Name);
 
             const profile1Data = profile1Result.data;
             const profile1MaxParcelas = profile1Result.max_parcelas;
@@ -1078,24 +1226,30 @@
         }
 
         /**
-         * Preenche um elemento select com todos os perfis de taxas disponíveis (pré-definidos e personalizados).
+         * Preenche um elemento select com todos os perfis de taxas disponíveis (pré-definidos e personalizados)
+         * para o plano atualmente selecionado.
          * @param {HTMLSelectElement} selectElement - O elemento select a ser preenchido.
          * @param {string} defaultProfile - O nome do perfil a ser selecionado por padrão.
          */
         function populateAllProfileSelect(selectElement, defaultProfile) {
             selectElement.innerHTML = '';
-            const allProfileNames = [...Object.keys(allRates), ...Object.keys(customProfiles)];
+            // Obtém as bandeiras para o plano atualmente selecionado
+            const currentPlanBrands = Object.keys(allRates[currentPlan]);
+            const allProfileNames = [...currentPlanBrands, ...Object.keys(customProfiles)];
             allProfileNames.forEach(profileName => {
                 const option = document.createElement('option');
                 option.value = profileName;
                 option.textContent = profileName;
                 selectElement.appendChild(option);
             });
-            if (defaultProfile) {
+            if (defaultProfile && allProfileNames.includes(defaultProfile)) {
                 selectElement.value = defaultProfile;
-            } else if (allProfileNames.length > 0) {
+            } else if (currentPlanBrands.length > 0) { // Prioriza a primeira bandeira do plano atual
+                selectElement.value = currentPlanBrands[0];
+            } else if (allProfileNames.length > 0) { // Fallback para qualquer perfil personalizado
                 selectElement.value = allProfileNames[0];
             }
+            currentSelectedBrand = selectElement.value; // Atualiza a bandeira selecionada
         }
 
         /**
@@ -1137,7 +1291,8 @@
             const paymentMethodSelect = document.getElementById(`payment-method-${calculatorId}`);
             const selectedProfileName = profileSelect.value;
             
-            const profileResult = getProfileData(selectedProfileName);
+            // Passa o plano atual para getProfileData
+            const profileResult = getProfileData(currentPlan, selectedProfileName);
             let brandData = profileResult.data;
             const profileMaxParcelas = profileResult.max_parcelas;
 
@@ -1154,8 +1309,9 @@
                     return true;
                 });
             } else if (calculatorId === 1) {
+                // Para a calculadora 1, a lista de métodos de pagamento é limitada pelas parcelas máximas do perfil selecionado na calculadora 2.
                 const profile2Name = profileSelect2.value;
-                const profile2ResultForCalc1 = getProfileData(profile2Name);
+                const profile2ResultForCalc1 = getProfileData(currentPlan, profile2Name); // Passa o plano atual
                 const maxParcelasForCalc1Dropdown = profile2ResultForCalc1.max_parcelas;
 
                 brandData = brandData.filter(method => {
@@ -1211,7 +1367,8 @@
                 return;
             }
             
-            const methodData = getProfileData(selectedProfileName).data;
+            // Passa o plano atual para getProfileData
+            const methodData = getProfileData(currentPlan, selectedProfileName).data;
             const method = methodData[selectedIndex];
             if (!method) {
                 resultsContainer.classList.add('hidden');
@@ -1240,7 +1397,7 @@
             document.getElementById(`payment-method-${calculatorId}`).value = '';
             document.getElementById(`results-container-${calculatorId}`).classList.add('hidden');
             if (calculatorId === 1) {
-                populateAllProfileSelect(profileSelect1, currentBrand);
+                populateAllProfileSelect(profileSelect1, currentSelectedBrand); // Usa a bandeira selecionada
             } else {
                 populateCustomProfileSelect(profileSelect2);
             }
@@ -1280,14 +1437,15 @@
                 return;
             }
 
+            // Verifica se o nome já existe em perfis pré-definidos ou personalizados
             if (editingProfileName && editingProfileName !== name) {
-                if (allRates[name] || customProfiles[name]) {
+                if ((allRates["CPAG 40"] && allRates["CPAG 40"][name]) || (allRates["CPAG 34"] && allRates["CPAG 34"][name]) || customProfiles[name]) {
                     showCustomModal('Já existe um perfil com este novo nome. Por favor, escolha um nome diferente.');
                     return;
                 }
                 // Se o nome foi alterado, remove o perfil antigo do objeto local e do localStorage
                 delete customProfiles[editingProfileName];
-            } else if (!editingProfileName && (allRates[name] || customProfiles[name])) {
+            } else if (!editingProfileName && ((allRates["CPAG 40"] && allRates["CPAG 40"][name]) || (allRates["CPAG 34"] && allRates["CPAG 34"][name]) || customProfiles[name])) {
                 showCustomModal('Já existe um perfil com este nome. Por favor, escolha um nome diferente.');
                 return;
             }
@@ -1426,8 +1584,10 @@
                         const profileName = event.target.dataset.profileName;
                         populateCustomProfileSelect(profileSelect2, profileName);
                         updateCalculatorUI(2);
-                        profileSelect1.value = currentBrand;
-                        updateCalculatorUI(1);
+                        // Ao comparar, a calculadora 1 deve exibir as taxas do plano atual e da bandeira selecionada.
+                        // Não é necessário alterar o profileSelect1 aqui, pois ele já está populado com as bandeiras do currentPlan.
+                        // Apenas forçamos uma atualização da UI para garantir que as taxas reflitam a mudança.
+                        updateCalculatorUI(1); 
                         showPage('comparison-details-page');
                     });
                 });
@@ -1486,8 +1646,9 @@
                 return;
             }
 
-            const profile1Result = getProfileData(profile1Name);
-            const profile2Result = getProfileData(profile2Name);
+            // Passa o plano atual para getProfileData
+            const profile1Result = getProfileData(currentPlan, profile1Name);
+            const profile2Result = getProfileData(currentPlan, profile2Name);
 
             const profile1Data = profile1Result.data;
             const profile2Data = profile2Result.data;
@@ -1634,12 +1795,14 @@
          */
         function updateAthosSummaryPage() {
             const selectedProfileName = athosSummaryProfileSelect.value;
-            const currentProfileData = getProfileData(selectedProfileName).data;
+            // Passa o plano atual para getProfileData
+            const currentProfileData = getProfileData(currentPlan, selectedProfileName).data;
 
-            const athosPixCet = 2.99; // Hardcoded
-            const athosDebitCet = 3.05; // Hardcoded
-            const athosCreditCet = 6.27; // Hardcoded (Crédito 1x antecipado)
-            const custoOperacional = parseFloat(custoOperacionalInput.value) || 0; // Agora lê do input
+            // Taxas fixas do Athos Pay (que correspondem ao CPAG 34)
+            const athosPixCet = 2.99; 
+            const athosDebitCet = 3.05; 
+            const athosCreditCet = 6.27; 
+            const custoOperacional = parseFloat(custoOperacionalInput.value) || 0; 
 
             let currentPixCetVal = 'N/A';
             let currentPixBandeiraVal = 'N/A';
@@ -1653,7 +1816,7 @@
             let currentCreditBandeiraVal = 'N/A';
             let currentCreditAliquotaVal = 'N/A';
 
-            // Find PIX data in the selected profile
+            // Encontra os dados de PIX no perfil selecionado
             const pixData = currentProfileData.find(d => d.forma === 'PIX');
             if (pixData) {
                 currentPixCetVal = pixData.cet;
@@ -1661,7 +1824,7 @@
                 currentPixAliquotaVal = pixData.servico;
             }
 
-            // Find Débito data in the selected profile
+            // Encontra os dados de Débito no perfil selecionado
             const debitData = currentProfileData.find(d => d.forma === 'Débito');
             if (debitData) {
                 currentDebitCetVal = debitData.cet;
@@ -1669,7 +1832,7 @@
                 currentDebitAliquotaVal = debitData.servico;
             }
 
-            // Find Crédito 1x antecipado data in the selected profile
+            // Encontra os dados de Crédito 1x antecipado no perfil selecionado
             const credit1xData = currentProfileData.find(d => d.forma === 'Parcelado 1x');
             if (credit1xData) {
                 currentCreditCetVal = credit1xData.cet;
@@ -1677,7 +1840,7 @@
                 currentCreditAliquotaVal = credit1xData.servico;
             }
 
-            // Update "SUA MÁQUINA ATUAL" table
+            // Atualiza a tabela "SUA MÁQUINA ATUAL"
             currentPixBandeira.textContent = currentPixBandeiraVal !== 'N/A' ? `${currentPixBandeiraVal.toFixed(2)}%` : 'N/A';
             currentPixAliquota.textContent = currentPixAliquotaVal !== 'N/A' ? `${currentPixAliquotaVal.toFixed(2)}%` : 'N/A';
             currentPixCet.textContent = currentPixCetVal !== 'N/A' ? `${currentPixCetVal.toFixed(2)}%` : 'N/A';
@@ -1690,7 +1853,7 @@
             currentCreditAliquota.textContent = currentCreditAliquotaVal !== 'N/A' ? `${currentCreditAliquotaVal.toFixed(2)}%` : 'N/A';
             currentCreditCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
 
-            // Update "COMPARATIVO C.E.T." table
+            // Atualiza a tabela "COMPARATIVO C.E.T."
             compPixCurrentCet.textContent = currentPixCetVal !== 'N/A' ? `${currentPixCetVal.toFixed(2)}%` : 'N/A';
             compDebitCurrentCet.textContent = currentDebitCetVal !== 'N/A' ? `${currentDebitCetVal.toFixed(2)}%` : 'N/A';
             compCreditCurrentCet.textContent = currentCreditCetVal !== 'N/A' ? `${currentCreditCetVal.toFixed(2)}%` : 'N/A';
@@ -1719,7 +1882,7 @@
                 compCreditDiff.textContent = 'N/A';
             }
 
-            // Update "TPV TOTAL DO CLIENTE E ECONOMIA GERADA" table
+            // Atualiza a tabela "TPV TOTAL DO CLIENTE E ECONOMIA GERADA"
             const tpvPix = parseFloat(tpvPixInput.value) || 0;
             const tpvDebit = parseFloat(tpvDebitInput.value) || 0;
             const tpvCredit = parseFloat(tpvCreditInput.value) || 0;
@@ -1818,6 +1981,13 @@
             tpvCreditInput.addEventListener('input', updateAthosSummaryPage);
             custoOperacionalInput.addEventListener('input', updateAthosSummaryPage); // NOVO: Listener para o custo operacional
 
+            // Listener para a seleção do plano
+            planSelect.addEventListener('change', () => {
+                currentPlan = planSelect.value;
+                // Redefine a bandeira selecionada para a primeira bandeira do novo plano
+                currentSelectedBrand = Object.keys(allRates[currentPlan])[0];
+                updateApp();
+            });
 
             // Outros listeners de eventos
             addCustomProfileButton.addEventListener('click', addCustomProfile);
